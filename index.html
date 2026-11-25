@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>스파클달력</title>
+<meta name="description" content="프리랜서·현장직을 위한 달력. 일정과 인건비·미수금을 한 달력에서. 휴대폰 앱과 윈도우 PC 프로그램.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://calendar.sparklekorea.com/">
+<meta property="og:title" content="스파클달력 — 일정과 돈을 한 달력에서">
+<meta property="og:description" content="프리랜서·현장직을 위한 달력. 휴대폰 앱과 윈도우 PC 프로그램.">
+<meta property="og:image" content="https://calendar.sparklekorea.com/img/og.jpg">
+<meta name="theme-color" content="#0d0e12">
+<link rel="icon" href="icon.png">
+<style>
+:root{
+  --bg:#0c0d11;--bg2:#111218;--card:#15161d;--line:rgba(231,201,137,.24);--line2:rgba(255,255,255,.07);
+  --gold:#e7c989;--gold2:#f6e2b0;--text:#f2eee6;--muted:#a49e94;--green:#6fd39a;--red:#ff8f84;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;word-break:keep-all;overflow-wrap:break-word}
+a{color:var(--gold);text-decoration:none}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+.gold{color:var(--gold);text-shadow:0 0 26px rgba(231,201,137,.35)}
+
+/* 위쪽 줄 */
+nav{position:sticky;top:0;z-index:20;background:rgba(12,13,17,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line2)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--gold);font-size:17.5px;letter-spacing:-.2px}
+.logo img{width:34px;height:34px;border-radius:9px}
+nav .links{display:flex;gap:22px;margin-left:12px}
+nav .links a{color:var(--muted);font-size:14.5px}
+nav .links a:hover{color:var(--text)}
+nav .sp{flex:1}
+.lang{font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--line2);border-radius:20px;padding:5px 13px;background:none}
+.lang:hover{color:var(--text)}
+.navdl{font-size:13.5px;font-weight:800;color:#17181e;background:var(--gold);border-radius:10px;padding:8px 15px}
+
+/* 버튼 */
+.btn{display:inline-flex;align-items:center;gap:11px;padding:14px 24px;border-radius:14px;font-weight:800;font-size:16px;transition:transform .15s,box-shadow .15s,background .15s;white-space:nowrap}
+.btn svg{width:22px;height:22px;flex:none}
+.btn small{display:block;font-size:11px;font-weight:600;opacity:.75;line-height:1.1}
+.btn .t{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}
+.btn-gold{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#17181e;box-shadow:0 8px 30px rgba(231,201,137,.28),inset 0 0 0 1px rgba(255,255,255,.2)}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 12px 38px rgba(231,201,137,.4)}
+.btn-line{border:1px solid var(--line);color:var(--text);background:rgba(231,201,137,.05)}
+.btn-line:hover{background:rgba(231,201,137,.1);transform:translateY(-1px)}
+.btn-line svg{stroke:var(--gold)}
+
+/* 첫 화면 */
+.hero{position:relative;padding:76px 0 90px;overflow:hidden}
+.hero:before{content:"";position:absolute;right:-200px;top:-180px;width:900px;height:700px;background:radial-gradient(closest-side,rgba(231,201,137,.14),transparent);pointer-events:none}
+.hero:after{content:"";position:absolute;left:-260px;bottom:-260px;width:700px;height:600px;background:radial-gradient(closest-side,rgba(110,120,220,.10),transparent);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--gold);border:1px solid var(--line);border-radius:20px;padding:5px 13px;background:rgba(231,201,137,.06)}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.hero h1{margin:20px 0 16px;font-size:clamp(34px,5.2vw,58px);line-height:1.15;letter-spacing:-1.5px;font-weight:800}
+.hero .lead{margin:0;max-width:520px;color:var(--muted);font-size:clamp(15.5px,1.8vw,18px)}
+.hero .btns{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px}
+.hero .note{margin-top:14px;font-size:13px;color:var(--muted)}
+.onphone{display:none;margin-top:16px;padding:11px 14px;border:1px dashed var(--line);border-radius:12px;font-size:14px;color:var(--gold)}
+.stage{position:relative;padding:10px 0 60px 50px}
+.stage .pc{border-radius:12px;overflow:hidden;border:1px solid rgba(231,201,137,.32);box-shadow:0 34px 90px rgba(0,0,0,.6),0 0 70px rgba(231,201,137,.10);transform:perspective(1600px) rotateY(-8deg) rotateX(3deg);transform-origin:left center}
+.stage .phone{position:absolute;left:0;bottom:0;width:31%}
+
+/* 휴대폰 틀 */
+.phone{border-radius:30px;padding:7px;background:#050506;border:1px solid rgba(231,201,137,.38);box-shadow:0 26px 60px rgba(0,0,0,.65),0 0 34px rgba(231,201,137,.12)}
+.phone img{border-radius:24px}
+
+/* 섹션 공통 */
+section{padding:90px 0;position:relative}
+.alt{background:var(--bg2);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.sec-h{text-align:center;max-width:680px;margin:0 auto 56px}
+.sec-h small{color:var(--gold);font-weight:800;letter-spacing:1.5px;font-size:12.5px}
+.sec-h h2{margin:8px 0 10px;font-size:clamp(26px,3.6vw,38px);letter-spacing:-.8px;line-height:1.25}
+.sec-h p{margin:0;color:var(--muted)}
+
+/* 휴대폰 기능 */
+.phones{display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
+.pf .phone{margin-bottom:20px;transition:transform .25s}
+.pf:hover .phone{transform:translateY(-6px)}
+.pf b{display:block;font-size:16.5px;margin-bottom:4px}
+.pf span{display:block;font-size:13.5px;color:var(--muted)}
+.pf b span{display:inline;font-size:inherit;color:inherit}
+.tag{display:inline-block;font-size:11px;font-weight:800;color:var(--gold);border:1px solid var(--line);border-radius:8px;padding:0 6px;margin-left:6px;vertical-align:2px}
+
+.widgets{margin-top:70px;display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center;padding:36px;border:1px solid var(--line2);border-radius:24px;background:radial-gradient(90% 120% at 100% 0%,rgba(90,100,200,.12),transparent),var(--card)}
+.widgets h3{margin:0 0 8px;font-size:24px;letter-spacing:-.4px}
+.widgets p{margin:0;color:var(--muted)}
+.wg{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;align-items:center}
+.wg img{border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.wg .col{display:grid;gap:14px}
+
+/* PC */
+.pcrow{display:grid;grid-template-columns:1fr 1.45fr;gap:50px;align-items:center;margin-bottom:90px}
+.pcrow.rev{grid-template-columns:1.45fr 1fr}
+.pcrow.rev .txt{order:2}
+.pcrow h3{margin:0 0 10px;font-size:26px;letter-spacing:-.5px}
+.pcrow p{margin:0;color:var(--muted)}
+.shot{border-radius:12px;overflow:hidden;border:1px solid rgba(231,201,137,.3);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 50px rgba(231,201,137,.08)}
+.ico{width:46px;height:46px;border-radius:13px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:rgba(231,201,137,.05)}
+.ico svg{width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(231,201,137,.6))}
+ul.chk{list-style:none;padding:0;margin:18px 0 0}
+ul.chk li{position:relative;padding-left:26px;margin:8px 0;font-size:15px}
+ul.chk li:before{content:"";position:absolute;left:3px;top:8px;width:10px;height:6px;border-left:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg)}
+.desk{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line2);aspect-ratio:16/10;background:radial-gradient(120% 90% at 20% 10%,#2b3150 0%,#161a2b 45%,#0c0e17 100%)}
+.desk .wd{position:absolute;right:5%;top:7%;width:40%;border-radius:12px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.6);border:1px solid rgba(231,201,137,.3)}
+.desk .st{position:absolute;left:4%;right:4%;bottom:13%;border-radius:8px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.desk .tb{position:absolute;left:0;right:0;bottom:0;height:9%;background:rgba(18,20,28,.94);border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:10px}
+.desk .tb i{width:20px;height:20px;border-radius:5px;background:rgba(255,255,255,.12)}
+.desk .tb i.me{background:url(icon.png) center/cover;box-shadow:0 0 0 2px rgba(231,201,137,.5)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{border:1px solid var(--line2);border-radius:16px;padding:20px;background:var(--card)}
+.card .ico{margin:0 0 12px;width:40px;height:40px}
+.card b{display:block;margin-bottom:4px;font-size:15.5px}
+.card span{font-size:13.5px;color:var(--muted)}
+.pcdl{margin-top:44px;text-align:center}
+.pcdl .meta{margin-top:10px;font-size:13px;color:var(--muted)}
+
+/* 설치 */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:s}
+.step{position:relative;border:1px solid var(--line2);border-radius:16px;padding:24px 18px 18px;background:var(--card)}
+.step:before{counter-increment:s;content:counter(s);position:absolute;top:-13px;left:18px;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#17181e;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+.step b{display:block;margin-bottom:4px}
+.step span{font-size:13.5px;color:var(--muted)}
+.ss{margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.ssbox{border-radius:6px;background:#1f6fc5;color:#fff;padding:22px 24px;font-family:"Segoe UI","Malgun Gothic",sans-serif;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.ssbox h4{margin:0 0 12px;font-size:22px;font-weight:400}
+.ssbox p{margin:0 0 10px;font-size:13px}
+.ssbox .more{display:inline-block;font-size:13px;text-decoration:underline;outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+.ssbox .bt{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
+.ssbox .bt span{border:1px solid rgba(255,255,255,.85);padding:5px 22px;font-size:13px}
+.ssbox .bt .run{outline:2px solid var(--gold);outline-offset:3px}
+.ss h3{margin:0 0 8px;font-size:20px}
+.ss p{margin:0;color:var(--muted);font-size:14.5px}
+
+/* 질문 */
+.faq{max-width:780px;margin:0 auto}
+details{border:1px solid var(--line2);border-radius:14px;background:var(--card);margin-bottom:10px}
+summary{cursor:pointer;list-style:none;padding:17px 20px;font-weight:700;display:flex;align-items:center;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"";margin-left:auto;flex:none;width:8px;height:8px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(45deg);transition:transform .2s}
+details[open] summary:after{transform:rotate(-135deg)}
+details p{margin:0;padding:0 20px 17px;color:var(--muted);font-size:14.5px}
+
+.final{text-align:center;padding:72px 22px;border:1px solid var(--line);border-radius:24px;background:radial-gradient(80% 120% at 50% 0%,rgba(231,201,137,.13),transparent),var(--bg2)}
+.final img{width:76px;height:76px;border-radius:20px;margin:0 auto 18px;box-shadow:0 0 40px rgba(231,201,137,.3)}
+.final h2{margin:0 0 8px;font-size:clamp(26px,3.6vw,36px);letter-spacing:-.6px}
+.final p{margin:0 0 28px;color:var(--muted)}
+.final .btns{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+footer{padding:44px 0 54px;text-align:center;font-size:12.5px;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:underline}
+
+/* 스크롤하면 살짝 떠오르기 */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+.rv.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+@media (max-width:980px){
+  .hero .wrap{grid-template-columns:1fr}
+  .stage{max-width:640px;margin:10px auto 0}
+  .phones{grid-template-columns:repeat(3,1fr)}
+  .widgets,.pcrow,.pcrow.rev,.ss{grid-template-columns:1fr}
+  .pcrow.rev .txt{order:0}
+  .pcrow{gap:26px;margin-bottom:64px}
+  .cards,.steps{grid-template-columns:1fr 1fr}
+  nav .links{display:none}
+}
+@media (max-width:560px){
+  .phones{grid-template-columns:1fr 1fr;gap:16px}
+  .cards,.steps{grid-template-columns:1fr}
+  .navdl{display:none}
+  .hero{padding:44px 0 60px}
+  .widgets{padding:22px}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" href="#"><img src="icon.png" alt=""><span data-t="brand">스파클달력</span></a>
+  <div class="links"><a href="#app" data-t="nav1">기능</a><a href="#pc" data-t="nav2">PC 프로그램</a><a href="#faq" data-t="nav3">자주 묻는 질문</a></div>
+  <span class="sp"></span>
+  <button class="lang" id="lang" type="button">English</button>
+  <a class="navdl" href="#get" data-t="navdl">다운로드</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div>
+    <span class="badge"><i></i><span data-t="badge">프리랜서·현장직을 위한 달력</span></span>
+    <h1 data-t="h1">일정과 돈을<br><span class="gold">한 달력에서</span></h1>
+    <p class="lead" data-t="lead">언제 어디서 일했는지, 얼마를 받았고 얼마를 못 받았는지. 스파클달력이 달력 한 장에 정리해 드려요. 휴대폰과 PC가 같은 계정으로 이어져요.</p>
+    <div class="btns" id="get">
+      <a class="btn btn-gold" href="https://play.google.com/store/apps/details?id=com.freelance.calendar" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 2.8c-.3.2-.5.6-.5 1.1v16.2c0 .5.2.9.5 1.1l9.1-9.2zM15 13.4l2.6 2.6-11 6.3zM15 10.6 6.6 1.7l11 6.3zM18.7 8.7l3 1.7c.9.5.9 1.8 0 2.3l-3 1.7-2.8-2.8z"/></svg>
+        <span class="t"><small data-t="gpS">휴대폰 앱</small><span data-t="gp">Google Play</span></span>
+      </a>
+      <a class="btn btn-line dlLink" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span class="t"><small data-t="winS">PC 프로그램 · 무료</small><span data-t="win">Windows 다운로드</span></span>
+      </a>
+    </div>
+    <div class="note" data-t="note">휴대폰 앱 무료 · 프리미엄 30일 무료 체험</div>
+    <div class="onphone" id="onphone" data-t="onphone">PC 프로그램은 PC에서 <b>calendar.sparklekorea.com</b> 을 열어 받아 주세요.</div>
+  </div>
+  <div class="stage">
+    <div class="pc"><img src="img/pcw_calendar.webp" width="1440" height="976" alt="스파클달력 PC 프로그램 달력 화면"></div>
+    <div class="phone"><img src="img/m_main.webp" width="540" height="1170" alt="스파클달력 휴대폰 앱 달력 화면"></div>
+  </div>
+</div></header>
+
+<section id="app" class="alt"><div class="wrap">
+  <div class="sec-h rv"><small data-t="appS">휴대폰 앱</small><h2 data-t="appH">일하는 사람의 하루에 맞춘 기능</h2><p data-t="appP">일정을 적으면 돈 계산은 스파클달력이 해요.</p></div>
+  <div class="phones">
+    <div class="pf rv"><div class="phone"><img src="img/m_main.webp" width="540" height="1170" alt="" loading="lazy"></div><b data-t="m1">달력에 돈이 보여요</b><span data-t="m1d">날마다 번 돈, 이번 달 입금·미입금 합계가 달력 위에.</span></div>
+    <div class="pf rv"><div class="phone"><img src="img/m_edit.webp" width="540" height="1170" alt="" loading="lazy"></div><b data-t="m2">인건비 자동 계산</b><span data-t="m2d">날짜마다 시간·금액을 넣으면 3.3% 공제 후 실수령까지.</span></div>
+    <div class="pf rv"><div class="phone"><img src="img/m_autoclock.webp" width="540" height="1170" alt="" loading="lazy"></div><b><span data-t="m3">자동 출퇴근</span><span class="tag">PREMIUM</span></b><span data-t="m3d">현장에 도착하면 출근, 떠나면 퇴근을 알아서 기록.</span></div>
+    <div class="pf rv"><div class="phone"><img src="img/m_chat.webp" width="540" height="1170" alt="" loading="lazy"></div><b data-t="m4">팀 대화방</b><span data-t="m4d">같이 일하는 사람들과 대화하고, 공유한 일정은 내 달력으로.</span></div>
+    <div class="pf rv"><div class="phone"><img src="img/m_clients.webp" width="540" height="1170" alt="" loading="lazy"></div><b data-t="m5">가계부·거래처</b><span data-t="m5d">거래처별로 받을 돈을 한눈에. 세금 신고 준비도 쉽게.</span></div>
+  </div>
+
+  <div class="widgets rv">
+    <div>
+      <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="18" height="8" rx="2"/></svg></div>
+      <h3 data-t="wH">홈 화면 위젯</h3>
+      <p data-t="wP">앱을 열지 않아도 홈 화면에서 이번 달 일정과 시계·날씨를 바로 봐요.</p>
+    </div>
+    <div class="wg">
+      <img src="img/w_calendar.webp" width="472" height="632" alt="" loading="lazy">
+      <div class="col"><img src="img/w_clock.webp" width="452" height="286" alt="" loading="lazy"><img src="img/w_weather.webp" width="452" height="286" alt="" loading="lazy"></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="pc"><div class="wrap">
+  <div class="sec-h rv"><small data-t="pcS">PC 프로그램</small><h2 data-t="pcH">휴대폰 달력 그대로, PC 큰 화면에서</h2><p data-t="pcP">같은 계정으로 로그인하면 일정·가계부·채팅이 그대로 이어져요. 휴대폰에서 고치면 PC에도 바로.</p></div>
+
+  <div class="pcrow rv">
+    <div class="txt">
+      <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+      <h3 data-t="r1h">한 달이 한 화면에</h3>
+      <p data-t="r1p">큰 달력에서 한 달을 한눈에 보고, 마우스로 바로 만들고 옮겨요.</p>
+      <ul class="chk"><li data-t="r1a">빈칸을 두 번 누르면 새 일정</li><li data-t="r1b">끌어다 놓으면 이동·복사</li><li data-t="r1c">Ctrl+F 로 검색, 휠로 달 넘기기</li></ul>
+    </div>
+    <div class="shot"><img src="img/pcw_calendar.webp" width="1440" height="976" alt="" loading="lazy"></div>
+  </div>
+
+  <div class="pcrow rev rv">
+    <div class="shot"><img src="img/pcw_ledger.webp" width="1440" height="976" alt="" loading="lazy"></div>
+    <div class="txt">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+      <h3 data-t="r2h">가계부·미수금을 큰 표로</h3>
+      <p data-t="r2p">한 해 수입, 받을 돈, 거래처별 리포트를 PC에서 정리해요.</p>
+      <ul class="chk"><li data-t="r2a">달마다 입금·미입금 막대</li><li data-t="r2b">오래된 미입금은 빨갛게</li><li data-t="r2c">거래처·세금 리포트</li></ul>
+    </div>
+  </div>
+
+  <div class="pcrow rv">
+    <div class="txt">
+      <div class="ico"><svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <h3 data-t="r3h">바탕화면에 늘 떠 있는 달력</h3>
+      <p data-t="r3p">프로그램을 열지 않아도 바탕화면 위젯과 작업 표시줄 위 한 줄 달력으로 오늘 일정을 봐요.</p>
+      <ul class="chk"><li data-t="r3a">바탕화면 달력 위젯</li><li data-t="r3b">작업 표시줄 위 한 줄 달력</li><li data-t="r3c">트레이 아이콘에 오늘 남은 일정 수</li></ul>
+    </div>
+    <div class="desk">
+      <img class="wd" src="img/widget.webp" width="360" height="420" alt="" loading="lazy">
+      <img class="st" src="img/strip.webp" width="1100" height="44" alt="" loading="lazy">
+      <div class="tb"><i></i><i></i><i class="me"></i><i></i></div>
+    </div>
+  </div>
+
+  <div class="cards rv">
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/></svg></div><b data-t="c1">채팅</b><span data-t="c1d">키보드로 편하게, 대화방은 따로 창으로.</span></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg></div><b data-t="c2">PC 알림</b><span data-t="c2d">창을 닫아도 트레이에서 새 메시지를 알려 줘요.</span></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></div><b data-t="c3">자동 업데이트</b><span data-t="c3d">새 버전은 알아서 받아 두었다가 적용돼요.</span></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div><b data-t="c4">7개 언어</b><span data-t="c4d">한국어·영어·일본어·중국어·스페인어·포르투갈어·독일어</span></div>
+  </div>
+
+  <div class="pcdl rv">
+    <a class="btn btn-gold dlLink" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg><span data-t="dl">Windows용 무료 다운로드</span></a>
+    <div class="meta" id="meta"></div>
+  </div>
+</div></section>
+
+<section id="install" class="alt"><div class="wrap">
+  <div class="sec-h rv"><small data-t="iS">PC 설치 방법</small><h2 data-t="iH">1분이면 끝나요</h2></div>
+  <div class="steps rv">
+    <div class="step"><b data-t="s1">다운로드</b><span data-t="s1d">금색 다운로드 버튼을 눌러 설치 파일을 받아요.</span></div>
+    <div class="step"><b data-t="s2">실행</b><span data-t="s2d">받은 SparkleCalendar-Setup.exe 를 열어요.</span></div>
+    <div class="step"><b data-t="s3">파란 창이 나오면</b><span data-t="s3d">추가 정보 → 실행 을 눌러요. (아래 그림)</span></div>
+    <div class="step"><b data-t="s4">로그인</b><span data-t="s4d">휴대폰에서 쓰던 방법(카카오·구글 등)으로 로그인해요.</span></div>
+  </div>
+  <div class="ss rv">
+    <div class="ssbox" aria-hidden="true">
+      <h4 data-t="ssh">Windows의 PC 보호</h4>
+      <p data-t="ssp">Microsoft Defender SmartScreen에서 인식할 수 없는 앱의 시작을 차단했습니다.</p>
+      <span class="more" data-t="ssm">추가 정보</span>
+      <div class="bt"><span class="run" data-t="ssr">실행</span><span data-t="ssn">실행 안 함</span></div>
+    </div>
+    <div>
+      <h3 data-t="wh">이 창이 나와도 괜찮아요</h3>
+      <p data-t="wp">새로 나온 프로그램이라 윈도우가 아직 잘 몰라서 보여 주는 안내예요. 이 페이지에서 받은 파일이면 <b>추가 정보</b>를 누른 뒤 나오는 <b>실행</b> 버튼으로 설치하시면 돼요.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <div class="sec-h rv"><small data-t="qS">자주 묻는 질문</small><h2 data-t="qH">궁금한 점</h2></div>
+  <div class="faq rv">
+    <details><summary data-t="q1">돈이 드나요?</summary><p data-t="a1">휴대폰 앱과 PC 프로그램 모두 무료로 쓸 수 있어요. 자동 출퇴근 같은 일부 기능은 프리미엄이고, 휴대폰에서 프리미엄을 쓰면 같은 계정의 PC에서도 그대로 열려요.</p></details>
+    <details><summary data-t="q2">휴대폰과 PC가 어떻게 이어지나요?</summary><p data-t="a2">같은 계정(카카오·구글 등)으로 로그인하면 일정·가계부·채팅이 같은 서버에 저장돼요. 한쪽에서 고치면 다른 쪽에도 바로 보여요.</p></details>
+    <details><summary data-t="q3">아이폰도 되나요?</summary><p data-t="a3">지금은 안드로이드(Google Play)와 윈도우 PC를 지원해요. 아이폰은 준비 중이에요.</p></details>
+    <details><summary data-t="q4">PC 프로그램 새 버전은 어떻게 받나요?</summary><p data-t="a4">프로그램이 알아서 받아 두었다가, 종료하거나 알림을 누르면 설치돼요. 다시 다운로드할 필요 없어요.</p></details>
+    <details><summary data-t="q5">맥(Mac)에서도 되나요?</summary><p data-t="a5">지금은 윈도우 10·11만 지원해요.</p></details>
+  </div>
+</div></section>
+
+<div class="wrap">
+  <div class="final rv">
+    <img src="icon.png" alt="">
+    <h2 data-t="fH">오늘부터 달력 한 장으로</h2>
+    <p data-t="fP">휴대폰에서 시작하고, PC에서 크게 보세요.</p>
+    <div class="btns">
+      <a class="btn btn-gold" href="https://play.google.com/store/apps/details?id=com.freelance.calendar" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 2.8c-.3.2-.5.6-.5 1.1v16.2c0 .5.2.9.5 1.1l9.1-9.2zM15 13.4l2.6 2.6-11 6.3zM15 10.6 6.6 1.7l11 6.3zM18.7 8.7l3 1.7c.9.5.9 1.8 0 2.3l-3 1.7-2.8-2.8z"/></svg><span data-t="gp">Google Play</span></a>
+      <a class="btn btn-line dlLink" href="#"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span data-t="win">Windows 다운로드</span></a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>© Sparkle Korea · <a href="https://github.com/sparklekorea/calendar-pc/releases" target="_blank" rel="noopener" data-t="all">PC 모든 버전</a></div>
+</footer>
+
+<script>
+var DL = 'https://github.com/sparklekorea/calendar-pc/releases/latest/download/SparkleCalendar-Setup.exe';
+document.querySelectorAll('.dlLink').forEach(function (a) { a.href = DL; });
+var EN = {
+  brand: 'Sparkle Calendar', nav1: 'Features', nav2: 'PC app', nav3: 'FAQ', navdl: 'Download',
+  badge: 'A calendar for freelancers and field workers',
+  h1: 'Your schedule and money,<br><span class="gold">on one calendar</span>',
+  lead: 'Where you worked, what you were paid and what is still unpaid. Sparkle Calendar puts it all on one calendar, and your phone and PC stay in sync with the same account.',
+  gpS: 'Phone app', gp: 'Google Play', winS: 'PC app · Free', win: 'Download for Windows',
+  note: 'Free phone app · 30-day free Premium trial',
+  onphone: 'To get the PC app, open <b>calendar.sparklekorea.com</b> on your PC.',
+  appS: 'PHONE APP', appH: 'Built around a working day', appP: 'You write the schedule, Sparkle Calendar does the math.',
+  m1: 'Money on your calendar', m1d: 'Daily earnings and this month’s paid / unpaid totals right on the calendar.',
+  m2: 'Automatic pay math', m2d: 'Enter hours and pay per day and see take-home after withholding.',
+  m3: 'Auto clock-in', m3d: 'Clocks you in when you arrive on site and out when you leave.',
+  m4: 'Team chat', m4d: 'Talk with your crew and add shared schedules to your calendar.',
+  m5: 'Ledger & clients', m5d: 'See what each client still owes you. Tax time gets easier.',
+  wH: 'Home screen widgets', wP: 'See this month, the time and the weather without opening the app.',
+  pcS: 'PC APP', pcH: 'Your phone calendar, on the big screen', pcP: 'Sign in with the same account and your schedule, ledger and chats carry over. Edit on your phone, see it on your PC.',
+  r1h: 'A whole month on one screen', r1p: 'See the month at a glance and create or move schedules with the mouse.',
+  r1a: 'Double-click an empty day for a new schedule', r1b: 'Drag to move or copy', r1c: 'Ctrl+F to search, wheel to change month',
+  r2h: 'Ledger and unpaid in big tables', r2p: 'Yearly income, money to collect and client reports, organized on your PC.',
+  r2a: 'Paid / unpaid bars for every month', r2b: 'Long-unpaid items in red', r2c: 'Client and tax reports',
+  r3h: 'A calendar that stays on your desktop', r3p: 'See today without opening the program, with a desktop widget and a one-line calendar above the taskbar.',
+  r3a: 'Desktop calendar widget', r3b: 'One-line calendar above the taskbar', r3c: "Today's remaining count on the tray icon",
+  c1: 'Chat', c1d: 'Type comfortably and pop chats out into their own windows.',
+  c2: 'PC alerts', c2d: 'New-message alerts from the tray, even with the window closed.',
+  c3: 'Auto updates', c3d: 'New versions download on their own and apply automatically.',
+  c4: '7 languages', c4d: 'Korean, English, Japanese, Chinese, Spanish, Portuguese, German',
+  dl: 'Free download for Windows',
+  iS: 'INSTALL ON PC', iH: 'Done in a minute',
+  s1: 'Download', s1d: 'Click the gold download button.', s2: 'Run', s2d: 'Open the downloaded SparkleCalendar-Setup.exe.',
+  s3: 'If a blue box appears', s3d: 'Click More info → Run anyway. (see below)', s4: 'Sign in', s4d: 'Use the same sign-in as on your phone (Google, Kakao, …).',
+  ssh: 'Windows protected your PC', ssp: 'Microsoft Defender SmartScreen prevented an unrecognized app from starting.', ssm: 'More info', ssr: 'Run anyway', ssn: "Don't run",
+  wh: 'This box is normal', wp: 'Windows shows it for new programs it does not know yet. If you downloaded the file from this page, click <b>More info</b> and then <b>Run anyway</b>.',
+  qS: 'FAQ', qH: 'Questions',
+  q1: 'Does it cost anything?', a1: 'Both the phone app and the PC app are free. Some features such as auto clock-in are Premium, and Premium on your phone also unlocks on the PC with the same account.',
+  q2: 'How do phone and PC stay in sync?', a2: 'Sign in with the same account (Google, Kakao, …) and your schedule, ledger and chats are saved on the same server. Change one, see it on the other.',
+  q3: 'Does it work on iPhone?', a3: 'Android (Google Play) and Windows PC for now. iPhone is in the works.',
+  q4: 'How does the PC app update?', a4: 'It downloads new versions on its own and installs them when you quit or click the alert.',
+  q5: 'Does it work on Mac?', a5: 'Only Windows 10 and 11 for now.',
+  fH: 'One calendar, starting today', fP: 'Start on your phone, see it big on your PC.', all: 'All PC versions'
+};
+var KO = {};
+document.querySelectorAll('[data-t]').forEach(function (e) { var k = e.getAttribute('data-t'); if (!(k in KO)) KO[k] = e.innerHTML; });
+var lang = (navigator.language || 'ko').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en';
+try { lang = localStorage.getItem('lang') || lang; } catch (e) {}
+var rel = null;
+function showMeta() {
+  var m = document.getElementById('meta');
+  var base = 'Windows 10 · 11 (64' + (lang === 'en' ? '-bit)' : '비트)');
+  if (!rel) { m.textContent = base; return; }
+  var a = (rel.assets || []).filter(function (x) { return /\.exe$/i.test(x.name); })[0];
+  m.textContent = (lang === 'en' ? 'Version ' : '버전 ') + String(rel.tag_name || '').replace(/^v/, '') + (a ? ' · ' + Math.round(a.size / 1048576) + 'MB' : '') + ' · ' + base;
+}
+function apply() {
+  var d = lang === 'en' ? EN : KO;
+  document.documentElement.lang = lang;
+  document.title = lang === 'en' ? 'Sparkle Calendar' : '스파클달력';
+  document.querySelectorAll('[data-t]').forEach(function (e) { var k = e.getAttribute('data-t'); if (d[k] != null) e.innerHTML = d[k]; });
+  document.getElementById('lang').textContent = lang === 'en' ? '한국어' : 'English';
+  showMeta();
+}
+document.getElementById('lang').onclick = function () {
+  lang = lang === 'en' ? 'ko' : 'en';
+  try { localStorage.setItem('lang', lang); } catch (e) {}
+  apply();
+};
+if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) document.getElementById('onphone').style.display = 'block';
+fetch('https://api.github.com/repos/sparklekorea/calendar-pc/releases/latest')
+  .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { rel = j; showMeta(); }).catch(function () {});
+// 스크롤하면 하나씩 나타나기
+var rvs = document.querySelectorAll('.rv');
+if ('IntersectionObserver' in window) {
+  var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+  rvs.forEach(function (e) { io.observe(e); });
+} else rvs.forEach(function (e) { e.classList.add('on'); });
+apply();
+</script>
+</body>
+</html>
