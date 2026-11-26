@@ -22,6 +22,9 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 section,[id]{scroll-margin-top:76px}
+#top{scroll-margin-top:0}
+.btns.flash .btn{animation:flash 1.1s ease 2}
+@keyframes flash{50%{box-shadow:0 0 0 4px rgba(231,201,137,.45),0 0 28px rgba(231,201,137,.5)}}
 body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;word-break:keep-all;overflow-wrap:break-word}
 a{color:var(--gold);text-decoration:none}
 img{max-width:100%;height:auto;display:block}
@@ -141,6 +144,14 @@ ul.chk li:before{content:"";position:absolute;left:3px;top:8px;width:10px;height
 
 /* 질문 */
 .faq{max-width:780px;margin:0 auto}
+.qsearch{position:relative;margin:0 0 22px}
+.qsearch svg{position:absolute;left:16px;top:50%;width:18px;height:18px;margin-top:-9px;color:var(--gold)}
+.qsearch input{width:100%;box-sizing:border-box;padding:15px 18px 15px 46px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);font:inherit;font-size:15px;outline:none}
+.qsearch input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(231,201,137,.15)}
+.qgroup h3{font-size:13px;letter-spacing:1px;color:var(--gold);margin:24px 4px 10px}
+.qsearch + .qnone + .qgroup h3{margin-top:0}
+.qnone{display:none;text-align:center;color:var(--muted);padding:20px}
+
 details{border:1px solid var(--line2);border-radius:14px;background:var(--card);margin-bottom:10px}
 summary{cursor:pointer;list-style:none;padding:17px 20px;font-weight:700;display:flex;align-items:center;gap:12px}
 summary::-webkit-details-marker{display:none}
@@ -188,10 +199,10 @@ footer a{color:var(--muted);text-decoration:underline}
   <div class="links"><a href="#app" data-t="nav1">기능</a><a href="#pc" data-t="nav2">PC 프로그램</a><a href="#faq" data-t="nav3">자주 묻는 질문</a></div>
   <span class="sp"></span>
   <button class="lang" id="lang" type="button">English</button>
-  <a class="navdl dlLink" href="https://github.com/sparklekorea/calendar-pc/releases/latest/download/SparkleCalendar-Setup.exe" data-t="navdl">다운로드</a>
+  <a class="navdl" href="#top" data-t="navdl">다운로드</a>
 </div></nav>
 
-<header class="hero"><div class="wrap">
+<header class="hero" id="top"><div class="wrap">
   <div>
     <span class="badge"><i></i><span data-t="badge">프리랜서·현장직을 위한 달력</span></span>
     <h1 data-t="h1">일정과 돈을<br><span class="gold">한 달력에서</span></h1>
@@ -313,11 +324,37 @@ footer a{color:var(--muted);text-decoration:underline}
 <section id="faq"><div class="wrap">
   <div class="sec-h rv"><small data-t="qS">자주 묻는 질문</small><h2 data-t="qH">궁금한 점</h2></div>
   <div class="faq rv">
-    <details><summary data-t="q1">돈이 드나요?</summary><p data-t="a1">휴대폰 앱과 PC 프로그램 모두 무료로 쓸 수 있어요. 자동 출퇴근 같은 일부 기능은 프리미엄이고, 휴대폰에서 프리미엄을 쓰면 같은 계정의 PC에서도 그대로 열려요.</p></details>
-    <details><summary data-t="q2">휴대폰과 PC가 어떻게 이어지나요?</summary><p data-t="a2">같은 계정(카카오·구글 등)으로 로그인하면 일정·가계부·채팅이 같은 서버에 저장돼요. 한쪽에서 고치면 다른 쪽에도 바로 보여요.</p></details>
-    <details><summary data-t="q3">아이폰도 되나요?</summary><p data-t="a3">지금은 안드로이드(Google Play)와 윈도우 PC를 지원해요. 아이폰은 준비 중이에요.</p></details>
-    <details><summary data-t="q4">PC 프로그램 새 버전은 어떻게 받나요?</summary><p data-t="a4">프로그램이 알아서 받아 두었다가, 종료하거나 알림을 누르면 설치돼요. 다시 다운로드할 필요 없어요.</p></details>
-    <details><summary data-t="q5">맥(Mac)에서도 되나요?</summary><p data-t="a5">지금은 윈도우 10·11만 지원해요.</p></details>
+    <div class="qsearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="qfind" type="search" autocomplete="off" placeholder="궁금한 점을 검색해 보세요 (예: 출근, 세금, 알림)"></div>
+    <p class="qnone" id="qnone" data-t="qnone">찾는 내용이 없어요. 다른 낱말로 검색해 보세요.</p>
+    <div class="qgroup"><h3 data-t="qg0">요금·체험</h3>
+      <details><summary data-t="q1">돈이 드나요?</summary><p data-t="a1">휴대폰 앱과 PC 프로그램 모두 무료로 쓸 수 있어요. 일정·달력·가계부·채팅·위젯은 무료예요. 자동 출퇴근, 인건비 자동 계산, 세금 정산, 거래처별 정산·리포트, 클라우드 자동 백업, 태양 궤적 AR 은 프리미엄이에요.</p></details>
+      <details><summary data-t="q2">무료 체험은 어떻게 되나요?</summary><p data-t="a2">처음 로그인한 날부터 30일 동안 프리미엄 기능을 모두 써 볼 수 있어요. 체험이 끝나도 적어 둔 일정·기록은 그대로 남고, 프리미엄 기능만 잠겨요.</p></details>
+      <details><summary data-t="q3">휴대폰에서 프리미엄을 사면 PC에서도 되나요?</summary><p data-t="a3">네. 결제는 휴대폰 앱(Google Play)에서 하고, 같은 계정으로 로그인한 PC 프로그램에서도 프리미엄이 열려요.</p></details>
+    </div>
+    <div class="qgroup"><h3 data-t="qg1">자동 출퇴근</h3>
+      <details><summary data-t="q4">자동 출퇴근은 어떻게 동작하나요?</summary><p data-t="a4">일정에 일하는 장소를 적어 두면, 그날 그 장소 근처(약 300m 안)에 도착할 때 출근이, 떠날 때 퇴근이 자동으로 찍히고 알림이 와요. 휴대폰 위치 권한을 <b>항상 허용</b>으로 두어야 해요.</p></details>
+      <details><summary data-t="q5">앱을 꺼 두어도 출근이 찍히나요?</summary><p data-t="a5">네. 앱을 열지 않아도 휴대폰이 뒤에서 위치를 보고 도착한 시각에 출근을 찍어요. 상단 알림줄에 "장소 자동 근무 기록"이 보이면 켜져 있는 거예요.</p></details>
+      <details><summary data-t="q6">출근 시간이 늦게 찍혔어요.</summary><p data-t="a6">휴대폰은 배터리를 아끼려고 많이 움직였을 때만 위치를 알려 줘요. 장소에 와서 가만히 있는 상태에서 일정을 만들거나 장소를 고치면, 앱을 열었을 때 확인해서 그 시각으로 찍힐 수 있어요. 일정을 눌러 출근 시간을 직접 고칠 수 있어요.</p></details>
+      <details><summary data-t="q7">밤새 일해서 날짜를 넘기면요?</summary><p data-t="a7">그대로 이어서 계산해요. 25일 07:00 출근, 26일 08:00 퇴근이면 25시간으로 기록돼요.</p></details>
+      <details><summary data-t="q8">하루에 장소가 여러 곳이면요?</summary><p data-t="a8">처음 장소에 도착할 때 출근, 마지막 장소를 떠날 때 퇴근으로 찍혀요.</p></details>
+    </div>
+    <div class="qgroup"><h3 data-t="qg2">정산·세금</h3>
+      <details><summary data-t="q9">인건비는 어떻게 계산되나요?</summary><p data-t="a9">일정에 시급·일급 같은 단가를 적어 두면 근무 시간으로 자동 계산돼요. 하루 12시간을 넘긴 시간은 초과 수당으로 따로 셀 수 있어요.</p></details>
+      <details><summary data-t="q10">3.3% 나 부가세도 계산되나요?</summary><p data-t="a10">네. 프리랜서는 원천징수(3.3%)를 뺀 금액, 사업자는 부가세(10%)를 더한 금액으로 정산해요.</p></details>
+      <details><summary data-t="q11">입금됐는지 한눈에 볼 수 있나요?</summary><p data-t="a11">달력 위에 입금 완료·미입금 합계가 나오고, 거래처별로 모아 정산 내역서를 공유할 수 있어요.</p></details>
+    </div>
+    <div class="qgroup"><h3 data-t="qg3">PC 프로그램</h3>
+      <details><summary data-t="q12">휴대폰과 PC가 어떻게 이어지나요?</summary><p data-t="a12">같은 계정(카카오·구글)으로 로그인하면 일정·가계부·채팅이 같은 서버에 저장돼요. 한쪽에서 고치면 다른 쪽에도 바로 보여요.</p></details>
+      <details><summary data-t="q13">PC 프로그램 새 버전은 어떻게 받나요?</summary><p data-t="a13">프로그램이 알아서 받아 두었다가, 종료하거나 알림을 누르면 설치돼요. 다시 다운로드할 필요 없어요.</p></details>
+      <details><summary data-t="q14">PC 알림이 다른 알림에 가려져요.</summary><p data-t="a14">설정 → PC 프로그램 → 알림 위치에서 <b>오른쪽 위</b>를 고르세요. 휴대폰과 연결 같은 윈도우 알림과 겹치지 않아요.</p></details>
+      <details><summary data-t="q15">설치할 때 "PC 보호" 창이 떠요.</summary><p data-t="a15">새로 나온 프로그램이라 나오는 안내예요. <b>추가 정보</b> → <b>실행</b>을 누르면 설치돼요.</p></details>
+      <details><summary data-t="q16">바탕화면에 달력을 띄울 수 있나요?</summary><p data-t="a16">네. 설정 → PC 프로그램에서 바탕화면 달력 위젯과 작업 표시줄 위 한 줄 달력을 켤 수 있어요.</p></details>
+    </div>
+    <div class="qgroup"><h3 data-t="qg4">채팅·기타</h3>
+      <details><summary data-t="q17">채팅으로 무엇을 보낼 수 있나요?</summary><p data-t="a17">친구·그룹·일정 대화방에서 글, 사진, 파일, 연락처, 일정을 보낼 수 있어요. 사진은 크게 보고 저장·공유할 수 있어요.</p></details>
+      <details><summary data-t="q18">휴대폰을 바꾸면 기록은요?</summary><p data-t="a18">같은 계정으로 로그인하면 일정이 그대로 이어져요. 클라우드 백업(설정 → 백업)에 올려 둔 것은 언제든 불러올 수 있어요.</p></details>
+      <details><summary data-t="q19">아이폰이나 맥에서도 되나요?</summary><p data-t="a19">지금은 안드로이드(Google Play)와 윈도우 10·11을 지원해요. 아이폰은 준비 중이에요.</p></details>
+    </div>
   </div>
 </div></section>
 
@@ -372,12 +409,50 @@ var EN = {
   s3: 'If a blue box appears', s3d: 'Click More info → Run anyway. (see below)', s4: 'Sign in', s4d: 'Use the same sign-in as on your phone (Google, Kakao, …).',
   ssh: 'Windows protected your PC', ssp: 'Microsoft Defender SmartScreen prevented an unrecognized app from starting.', ssm: 'More info', ssr: 'Run anyway', ssn: "Don't run",
   wh: 'This box is normal', wp: 'Windows shows it for new programs it does not know yet. If you downloaded the file from this page, click <b>More info</b> and then <b>Run anyway</b>.',
-  qS: 'FAQ', qH: 'Questions',
-  q1: 'Does it cost anything?', a1: 'Both the phone app and the PC app are free. Some features such as auto clock-in are Premium, and Premium on your phone also unlocks on the PC with the same account.',
-  q2: 'How do phone and PC stay in sync?', a2: 'Sign in with the same account (Google, Kakao, …) and your schedule, ledger and chats are saved on the same server. Change one, see it on the other.',
-  q3: 'Does it work on iPhone?', a3: 'Android (Google Play) and Windows PC for now. iPhone is in the works.',
-  q4: 'How does the PC app update?', a4: 'It downloads new versions on its own and installs them when you quit or click the alert.',
-  q5: 'Does it work on Mac?', a5: 'Only Windows 10 and 11 for now.',
+  qS: 'FAQ', qH: 'Questions', qnone: 'Nothing found. Try another word.',
+  qg0: "Price & trial",
+  q1: "Does it cost anything?",
+  a1: "Both the phone app and the PC app are free: events, calendar, ledger, chat and widgets. Auto clock-in, automatic pay calculation, tax settlement, per-client reports, automatic cloud backup and the sun-path AR view are Premium.",
+  q2: "How does the free trial work?",
+  a2: "You get every Premium feature for 30 days from your first sign-in. When it ends your events and records stay; only Premium features lock.",
+  q3: "Does Premium bought on my phone work on the PC?",
+  a3: "Yes. You pay in the phone app (Google Play), and Premium also unlocks on the PC app signed in with the same account.",
+  qg1: "Auto clock-in",
+  q4: "How does auto clock-in work?",
+  a4: "Add a work place to an event. On that day, arriving near the place (about 300 m) clocks you in and leaving clocks you out, with an alert. Location permission must be set to <b>Allow all the time</b>.",
+  q5: "Does it work with the app closed?",
+  a5: "Yes. Your phone checks location in the background and records the time you arrive. A \"Place auto work log\" notice in the status bar means it is on.",
+  q6: "My clock-in time was recorded late.",
+  a6: "To save battery, phones report location only after you move a fair distance. If you were already at the place when you made or edited the event, it is checked when you open the app and may use that time. Tap the event to edit the time.",
+  q7: "What if I work past midnight?",
+  a7: "It keeps counting. In at 07:00 on the 25th and out at 08:00 on the 26th is recorded as 25 hours.",
+  q8: "What if I work at several places in a day?",
+  a8: "You clock in at the first place and out when you leave the last one.",
+  qg2: "Pay & tax",
+  q9: "How is pay calculated?",
+  a9: "Enter an hourly or daily rate on the event and pay is calculated from your hours. Time over 12 hours a day can be counted as overtime.",
+  q10: "Does it handle 3.3% withholding or VAT?",
+  a10: "Yes. Freelancers see the amount after 3.3% withholding, and businesses see it with 10% VAT added.",
+  q11: "Can I see what has been paid?",
+  a11: "Paid and unpaid totals sit above the calendar, and you can group by client and share a statement.",
+  qg3: "PC app",
+  q12: "How do the phone and PC stay in sync?",
+  a12: "Sign in with the same account (Kakao or Google) and events, ledger and chats are saved to the same server. Changes show up on the other side right away.",
+  q13: "How do I get PC updates?",
+  a13: "The app downloads new versions by itself and installs them when you quit or tap the alert. No need to download again.",
+  q14: "PC alerts are hidden behind other alerts.",
+  a14: "Go to Settings → PC app → Alert position and choose <b>Top right</b> so Windows alerts such as Phone Link do not cover them.",
+  q15: "Windows shows a \"protected your PC\" screen.",
+  a15: "It appears because the app is new. Click <b>More info</b> → <b>Run anyway</b>.",
+  q16: "Can I put a calendar on my desktop?",
+  a16: "Yes. Turn on the desktop calendar widget and the one-line calendar above the taskbar in Settings → PC app.",
+  qg4: "Chat & more",
+  q17: "What can I send in chat?",
+  a17: "In friend, group and event chats you can send text, photos, files, contacts and events. Photos open full screen to save or share.",
+  q18: "What happens if I change phones?",
+  a18: "Sign in with the same account and your events carry over. Anything in cloud backup (Settings → Backup) can be restored at any time.",
+  q19: "Does it work on iPhone or Mac?",
+  a19: "For now it supports Android (Google Play) and Windows 10 and 11. iPhone is in the works.",
   fH: 'One calendar, starting today', fP: 'Start on your phone, see it big on your PC.', all: 'All PC versions'
 };
 var KO = {};
@@ -398,6 +473,7 @@ function apply() {
   document.title = lang === 'en' ? 'Sparkle Calendar' : '스파클달력';
   document.querySelectorAll('[data-t]').forEach(function (e) { var k = e.getAttribute('data-t'); if (d[k] != null) e.innerHTML = d[k]; });
   document.getElementById('lang').textContent = lang === 'en' ? '한국어' : 'English';
+  if (window.qfind) { qfind.placeholder = lang === 'en' ? 'Search questions (e.g. clock-in, tax, alerts)' : '궁금한 점을 검색해 보세요 (예: 출근, 세금, 알림)'; if (qfind.value) qFilter(); }
   showMeta();
 }
 document.getElementById('lang').onclick = function () {
@@ -405,6 +481,33 @@ document.getElementById('lang').onclick = function () {
   try { localStorage.setItem('lang', lang); } catch (e) {}
   apply();
 };
+// 자주 묻는 질문 검색: 질문·답에 낱말이 모두 들어 있는 것만 보여 주고 펼쳐 둡니다.
+var qfind = document.getElementById('qfind');
+function qFilter() {
+  var words = qfind.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  var shown = 0;
+  document.querySelectorAll('.qgroup').forEach(function (g) {
+    var any = 0;
+    g.querySelectorAll('details').forEach(function (d) {
+      var t = d.textContent.toLowerCase();
+      var ok = words.every(function (w) { return t.indexOf(w) >= 0; });
+      d.style.display = ok ? '' : 'none';
+      d.open = !!(ok && words.length);
+      if (ok) any++;
+    });
+    g.style.display = any ? '' : 'none';
+    shown += any;
+  });
+  document.getElementById('qnone').style.display = shown ? 'none' : 'block';
+}
+qfind.addEventListener('input', qFilter);
+// 위쪽 [다운로드]: 맨 위(휴대폰 앱·윈도우 다운로드 버튼)로 올라가서 두 버튼을 잠깐 반짝입니다.
+document.querySelector('.navdl').addEventListener('click', function (e) {
+  e.preventDefault();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  var b = document.getElementById('get');
+  b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash');
+});
 if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) document.getElementById('onphone').style.display = 'block';
 fetch('https://api.github.com/repos/sparklekorea/calendar-pc/releases/latest')
   .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { rel = j; showMeta(); }).catch(function () {});
