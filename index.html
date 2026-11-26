@@ -166,6 +166,7 @@ details p{margin:0;padding:0 20px 17px;color:var(--muted);font-size:14.5px}
 .final .btns{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
 footer{padding:44px 0 54px;text-align:center;font-size:12.5px;color:var(--muted)}
 footer a{color:var(--muted);text-decoration:underline}
+footer .docs{margin-top:8px}
 
 /* 스크롤하면 살짝 떠오르기 */
 .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
@@ -372,13 +373,14 @@ footer a{color:var(--muted);text-decoration:underline}
 
 <footer>
   <div>© Sparkle Korea · <a href="https://github.com/sparklekorea/calendar-pc/releases" target="_blank" rel="noopener" data-t="all">PC 모든 버전</a></div>
+  <div class="docs"><a href="guide.html" data-t="fGuide">사용 설명서</a> · <a href="privacy.html" data-t="fPrivacy"><b>개인정보처리방침</b></a> · <a href="terms.html" data-t="fTerms">이용약관</a> · <a href="mailto:sobmh7@gmail.com" data-t="fMail">문의</a></div>
 </footer>
 
 <script>
 var DL = 'https://github.com/sparklekorea/calendar-pc/releases/latest/download/SparkleCalendar-Setup.exe';
 document.querySelectorAll('.dlLink').forEach(function (a) { a.href = DL; });
 var EN = {
-  brand: 'Sparkle Calendar', nav1: 'Features', nav2: 'PC app', nav3: 'FAQ', navdl: 'Download',
+  fGuide: 'User guide (Korean)', fPrivacy: 'Privacy policy (Korean)', fTerms: 'Terms (Korean)', fMail: 'Contact', brand: 'Sparkle Calendar', nav1: 'Features', nav2: 'PC app', nav3: 'FAQ', navdl: 'Download',
   badge: 'A calendar for freelancers and field workers',
   h1: 'Your schedule and money,<br><span class="gold">on one calendar</span>',
   lead: 'Where you worked, what you were paid and what is still unpaid. Sparkle Calendar puts it all on one calendar, and your phone and PC stay in sync with the same account.',
