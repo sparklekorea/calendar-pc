@@ -42,6 +42,9 @@ nav .links a:hover{color:var(--text)}
 nav .sp{flex:1}
 .lang{font-size:13px;color:var(--muted);cursor:pointer;border:1px solid var(--line2);border-radius:20px;padding:5px 13px;background:none}
 .lang:hover{color:var(--text)}
+select.lang{-webkit-appearance:none;-moz-appearance:none;appearance:none;background:transparent;color:inherit;color:var(--muted);font:inherit;font-size:13px;line-height:1.4;outline:none}
+select.lang:hover,select.lang:focus{color:var(--text);border-color:var(--line)}
+select.lang option{background:var(--bg);color:var(--text)}
 .navdl{font-size:13.5px;font-weight:800;color:#17181e;background:var(--gold);border-radius:10px;padding:8px 15px}
 
 /* 버튼 */
@@ -199,7 +202,7 @@ footer .docs{margin-top:8px}
   <a class="logo" href="#"><img src="icon.png" alt=""><span data-t="brand">스파클달력</span></a>
   <div class="links"><a href="#app" data-t="nav1">기능</a><a href="#pc" data-t="nav2">PC 프로그램</a><a href="#faq" data-t="nav3">자주 묻는 질문</a></div>
   <span class="sp"></span>
-  <button class="lang" id="lang" type="button">English</button>
+  <select class="lang" id="lang" aria-label="Language"></select>
   <a class="navdl" href="#top" data-t="navdl">다운로드</a>
 </div></nav>
 
@@ -377,6 +380,44 @@ footer .docs{margin-top:8px}
 </footer>
 
 <script>
+// ===== 스파클코리아 공통 언어 처리 (sparklekorea.com · calendar · macro · dmx 모두 같은 코드) =====
+// 고른 언어를 sparklekorea.com 전체가 함께 기억합니다 (쿠키 domain=.sparklekorea.com).
+// 다른 스파클코리아 사이트로 가는 링크에는 ?lang= 을 붙여서, 사이트를 옮겨도 언어가 그대로입니다.
+// 처음 오면 브라우저 언어 → 지원 안 하는 언어면 영어.
+var SK_LANGS = [['ko', '한국어'], ['en', 'English'], ['ja', '日本語'], ['zh', '中文'], ['es', 'Español'], ['pt', 'Português'], ['de', 'Deutsch']];
+function skOk(x) { return SK_LANGS.some(function (l) { return l[0] === x; }); }
+function skDetect() {
+  var q = null;
+  try { q = new URLSearchParams(location.search).get('lang'); } catch (e) {}
+  if (skOk(q)) return q;
+  var m = document.cookie.match(/(?:^|; )sk_lang=([a-z]{2})/);
+  if (m && skOk(m[1])) return m[1];
+  try { var s = localStorage.getItem('lang'); if (skOk(s)) return s; } catch (e) {}
+  var n = String(navigator.language || 'en').slice(0, 2).toLowerCase();
+  return skOk(n) ? n : 'en';
+}
+function skSave(l) {
+  var dom = /(^|\.)sparklekorea\.com$/.test(location.hostname) ? '; domain=.sparklekorea.com' : '';
+  document.cookie = 'sk_lang=' + l + dom + '; path=/; max-age=31536000; SameSite=Lax';
+  try { localStorage.setItem('lang', l); } catch (e) {}
+}
+// 스파클코리아 사이트끼리 가는 링크에 지금 언어를 붙임 (?lang=xx)
+function skLinks(l) {
+  document.querySelectorAll('a[href]').forEach(function (a) {
+    try {
+      var u = new URL(a.getAttribute('href'), location.href);
+      if (!/(^|\.)sparklekorea\.com$/.test(u.hostname) || u.hostname === location.hostname) return;
+      u.searchParams.set('lang', l);
+      a.href = u.toString();
+    } catch (e) {}
+  });
+}
+// <select id="lang" class="lang"> 를 7개 언어로 채우고, 바꾸면 onChange(언어) 를 부름
+function skPicker(sel, cur, onChange) {
+  sel.innerHTML = SK_LANGS.map(function (l) { return '<option value="' + l[0] + '"' + (l[0] === cur ? ' selected' : '') + '>' + l[1] + '</option>'; }).join('');
+  sel.onchange = function () { skSave(sel.value); onChange(sel.value); };
+}
+// ===== 공통 언어 처리 끝 =====
 var DL = 'https://github.com/sparklekorea/calendar-pc/releases/latest/download/SparkleCalendar-Setup.exe';
 document.querySelectorAll('.dlLink').forEach(function (a) { a.href = DL; });
 var EN = {
@@ -457,32 +498,434 @@ var EN = {
   a19: "For now it supports Android (Google Play) and Windows 10 and 11. iPhone is in the works.",
   fH: 'One calendar, starting today', fP: 'Start on your phone, see it big on your PC.', all: 'All PC versions'
 };
+var JA = {
+  fGuide: "ユーザーガイド（韓国語）", fPrivacy: "プライバシーポリシー（韓国語）", fTerms: "利用規約（韓国語）", fMail: "お問い合わせ", brand: "Sparkle Calendar", nav1: "機能", nav2: "PC版", nav3: "よくある質問", navdl: "ダウンロード",
+  badge: "フリーランス・現場で働く人のカレンダー",
+  h1: "予定とお金を<br><span class=\"gold\">ひとつのカレンダーで</span>",
+  lead: "いつどこで働いたか、いくらもらって、いくら未払いか。Sparkle Calendar がカレンダー1枚にまとめます。スマホとPCは同じアカウントでつながります。",
+  gpS: "スマホアプリ", gp: "Google Play", winS: "PC版 · 無料", win: "Windows版ダウンロード",
+  note: "スマホアプリ無料 · プレミアム30日間無料体験",
+  onphone: "PC版は、PCで <b>calendar.sparklekorea.com</b> を開いてダウンロードしてください。",
+  appS: "スマホアプリ", appH: "働く人の一日に合わせた機能", appP: "予定を書けば、お金の計算は Sparkle Calendar におまかせ。",
+  m1: "カレンダーでお金が見える", m1d: "日ごとの収入と、今月の入金・未入金の合計がカレンダーの上に。",
+  m2: "人件費を自動計算", m2d: "日ごとに時間と金額を入れれば、源泉徴収後の手取りまで。",
+  m3: "自動出退勤", m3d: "現場に着いたら出勤、離れたら退勤を自動で記録。",
+  m4: "チームチャット", m4d: "一緒に働く仲間と話して、共有された予定は自分のカレンダーへ。",
+  m5: "家計簿・取引先", m5d: "取引先ごとの未回収額がひと目でわかる。確定申告の準備もラクに。",
+  wH: "ホーム画面ウィジェット", wP: "アプリを開かなくても、今月の予定と時計・天気をホーム画面ですぐ確認。",
+  pcS: "PC版", pcH: "スマホのカレンダーを、そのままPCの大画面で", pcP: "同じアカウントでログインすれば、予定・家計簿・チャットがそのまま引き継がれます。スマホで直せばPCにもすぐ反映。",
+  r1h: "ひと月がひと画面に", r1p: "大きなカレンダーでひと月を見渡し、マウスでそのまま作成・移動。",
+  r1a: "空いた日をダブルクリックで新しい予定", r1b: "ドラッグで移動・コピー", r1c: "Ctrl+F で検索、ホイールで月送り",
+  r2h: "家計簿・未回収を大きな表で", r2p: "年間の収入、未回収のお金、取引先別レポートをPCで整理。",
+  r2a: "月ごとの入金・未入金バー", r2b: "長く未入金のものは赤で表示", r2c: "取引先・税金レポート",
+  r3h: "デスクトップにいつもあるカレンダー", r3p: "プログラムを開かなくても、デスクトップウィジェットとタスクバー上の1行カレンダーで今日の予定をチェック。",
+  r3a: "デスクトップのカレンダーウィジェット", r3b: "タスクバー上の1行カレンダー", r3c: "トレイアイコンに今日の残り予定数",
+  c1: "チャット", c1d: "キーボードで快適に。トークルームは別ウィンドウで。",
+  c2: "PC通知", c2d: "ウィンドウを閉じても、トレイから新着メッセージをお知らせ。",
+  c3: "自動アップデート", c3d: "新しいバージョンは自動でダウンロードして適用。",
+  c4: "7言語対応", c4d: "韓国語・英語・日本語・中国語・スペイン語・ポルトガル語・ドイツ語",
+  dl: "Windows版を無料ダウンロード",
+  iS: "PCへのインストール", iH: "1分で完了",
+  s1: "ダウンロード", s1d: "金色のダウンロードボタンを押してインストーラーを入手。", s2: "実行", s2d: "ダウンロードした SparkleCalendar-Setup.exe を開きます。",
+  s3: "青い画面が出たら", s3d: "「詳細情報」→「実行」を押します。（下の図）", s4: "ログイン", s4d: "インストールは自動で終わり、プログラムが起動します。スマホと同じ方法（Google・Kakao など）でログイン。",
+  ssh: "Windows によって PC が保護されました", ssp: "Microsoft Defender SmartScreen は認識されないアプリの起動を停止しました。", ssm: "詳細情報", ssr: "実行", ssn: "実行しない",
+  wh: "この画面が出ても大丈夫", wp: "新しいプログラムなので、Windows がまだよく知らないために表示される案内です。このページからダウンロードしたファイルなら、<b>詳細情報</b>を押して表示される<b>実行</b>ボタンでインストールしてください。",
+  qS: "よくある質問", qH: "気になること", qnone: "見つかりませんでした。別の言葉で検索してみてください。",
+  qg0: "料金・体験",
+  q1: "お金はかかりますか？",
+  a1: "スマホアプリもPC版も無料で使えます。予定・カレンダー・家計簿・チャット・ウィジェットは無料。自動出退勤、人件費の自動計算、税金の精算、取引先別の精算・レポート、クラウド自動バックアップ、太陽の軌道ARはプレミアムです。",
+  q2: "無料体験はどうなっていますか？",
+  a2: "初めてログインした日から30日間、プレミアム機能をすべて試せます。体験が終わっても書いた予定や記録はそのまま残り、プレミアム機能だけがロックされます。",
+  q3: "スマホでプレミアムを買えばPCでも使えますか？",
+  a3: "はい。お支払いはスマホアプリ（Google Play）で行い、同じアカウントでログインしたPC版でもプレミアムが使えます。",
+  qg1: "自動出退勤",
+  q4: "自動出退勤はどう動きますか？",
+  a4: "予定に働く場所を書いておくと、その日その場所の近く（約300m以内）に着いたときに出勤、離れたときに退勤が自動で記録され、通知が届きます。スマホの位置情報の権限を<b>常に許可</b>にしておく必要があります。",
+  q5: "アプリを閉じていても出勤は記録されますか？",
+  a5: "はい。アプリを開かなくても、スマホがバックグラウンドで位置を確認し、到着した時刻で出勤を記録します。通知バーに「場所の自動勤務記録」が出ていれば動作中です。",
+  q6: "出勤時刻が遅れて記録されました。",
+  a6: "スマホはバッテリー節約のため、大きく移動したときだけ位置を知らせます。その場所に着いて止まっている状態で予定を作ったり場所を直したりした場合は、アプリを開いたときに確認してその時刻で記録されることがあります。予定をタップすれば出勤時刻を直接直せます。",
+  q7: "夜通し働いて日付をまたいだら？",
+  a7: "そのまま続けて計算します。25日 07:00 出勤、26日 08:00 退勤なら25時間として記録されます。",
+  q8: "1日に場所が複数ある場合は？",
+  a8: "最初の場所に着いたときに出勤、最後の場所を離れたときに退勤として記録されます。",
+  qg2: "精算・税金",
+  q9: "人件費はどう計算されますか？",
+  a9: "予定に時給・日給などの単価を書いておけば、勤務時間から自動で計算されます。1日12時間を超えた分は残業手当として別に数えられます。",
+  q10: "3.3%の源泉徴収や付加価値税も計算できますか？",
+  a10: "はい。フリーランスは源泉徴収（3.3%）を引いた金額、事業者は付加価値税（10%）を足した金額で精算します。",
+  q11: "入金されたかひと目でわかりますか？",
+  a11: "カレンダーの上に入金済み・未入金の合計が表示され、取引先ごとにまとめた精算明細を共有できます。",
+  qg3: "PC版",
+  q12: "スマホとPCはどうつながりますか？",
+  a12: "同じアカウント（Kakao・Google）でログインすれば、予定・家計簿・チャットが同じサーバーに保存されます。片方で直せばもう片方にもすぐ表示されます。",
+  q13: "PC版の新しいバージョンはどう入手しますか？",
+  a13: "プログラムが自動でダウンロードしておき、終了するか通知を押すとインストールされます。もう一度ダウンロードする必要はありません。",
+  q14: "PC通知がほかの通知に隠れます。",
+  a14: "設定 → PC版 → 通知の位置で<b>右上</b>を選んでください。「スマートフォン連携」などの Windows 通知と重なりません。",
+  q15: "インストール時に「PC が保護されました」画面が出ます。",
+  a15: "新しいプログラムなので表示される案内です。<b>詳細情報</b> → <b>実行</b>を押せばインストールされます。",
+  q16: "デスクトップにカレンダーを表示できますか？",
+  a16: "はい。設定 → PC版で、デスクトップのカレンダーウィジェットとタスクバー上の1行カレンダーをオンにできます。",
+  qg4: "チャット・その他",
+  q17: "チャットで何を送れますか？",
+  a17: "友だち・グループ・予定のトークルームで、テキスト、写真、ファイル、連絡先、予定を送れます。写真は大きく表示して保存・共有できます。",
+  q18: "スマホを機種変更したら記録は？",
+  a18: "同じアカウントでログインすれば予定はそのまま引き継がれます。クラウドバックアップ（設定 → バックアップ）に保存したものはいつでも復元できます。",
+  q19: "iPhone や Mac でも使えますか？",
+  a19: "今は Android（Google Play）と Windows 10・11 に対応しています。iPhone 版は準備中です。",
+  fH: "今日から、カレンダー1枚で", fP: "スマホではじめて、PCで大きく見よう。", all: "PC版の全バージョン"
+};
+var ZH = {
+  fGuide: "使用说明（韩语）", fPrivacy: "隐私政策（韩语）", fTerms: "使用条款（韩语）", fMail: "联系我们", brand: "Sparkle Calendar", nav1: "功能", nav2: "电脑版", nav3: "常见问题", navdl: "下载",
+  badge: "为自由职业者和现场工作者打造的日历",
+  h1: "日程和收入<br><span class=\"gold\">一个日历全搞定</span>",
+  lead: "在哪儿干了活、收到多少钱、还有多少没到账。Sparkle Calendar 帮你整理在一张日历上，手机和电脑用同一个账号同步。",
+  gpS: "手机应用", gp: "Google Play", winS: "电脑版 · 免费", win: "下载 Windows 版",
+  note: "手机应用免费 · 高级版免费试用30天",
+  onphone: "电脑版请在电脑上打开 <b>calendar.sparklekorea.com</b> 下载。",
+  appS: "手机应用", appH: "贴合工作日常的功能", appP: "你只管记日程，算钱交给 Sparkle Calendar。",
+  m1: "日历上直接看到钱", m1d: "每天的收入、本月已到账和未到账的合计，都显示在日历上。",
+  m2: "工资自动计算", m2d: "每天填入工时和金额，扣税后的实收一目了然。",
+  m3: "自动打卡", m3d: "到达现场自动上班打卡，离开自动下班打卡。",
+  m4: "团队聊天", m4d: "和一起干活的人聊天，共享的日程一键加入自己的日历。",
+  m5: "记账·客户", m5d: "每个客户还欠多少一眼看清，报税准备也更轻松。",
+  wH: "桌面小组件", wP: "不用打开应用，在手机桌面就能看本月日程、时钟和天气。",
+  pcS: "电脑版", pcH: "手机里的日历，原样搬到电脑大屏", pcP: "用同一个账号登录，日程、账本、聊天全都同步。手机上改了，电脑上马上就有。",
+  r1h: "一个月尽收一屏", r1p: "大日历一眼看完整月，用鼠标直接新建和移动日程。",
+  r1a: "双击空白日期新建日程", r1b: "拖动即可移动或复制", r1c: "Ctrl+F 搜索，滚轮翻月",
+  r2h: "账本和未收款，大表格看清楚", r2p: "全年收入、待收款项、按客户的报表，在电脑上整理。",
+  r2a: "每月已到账·未到账柱状图", r2b: "长期未到账标红", r2c: "客户和税务报表",
+  r3h: "常驻桌面的日历", r3p: "不用打开程序，通过桌面小组件和任务栏上方的单行日历查看今天的日程。",
+  r3a: "桌面日历小组件", r3b: "任务栏上方的单行日历", r3c: "托盘图标显示今天剩余日程数",
+  c1: "聊天", c1d: "用键盘轻松打字，聊天室可单独开窗口。",
+  c2: "电脑通知", c2d: "关掉窗口也能从托盘收到新消息提醒。",
+  c3: "自动更新", c3d: "新版本自动下载并安装。",
+  c4: "7种语言", c4d: "韩语、英语、日语、中文、西班牙语、葡萄牙语、德语",
+  dl: "免费下载 Windows 版",
+  iS: "电脑安装方法", iH: "一分钟搞定",
+  s1: "下载", s1d: "点击金色下载按钮，获取安装文件。", s2: "运行", s2d: "打开下载好的 SparkleCalendar-Setup.exe。",
+  s3: "出现蓝色窗口时", s3d: "点击“更多信息”→“仍要运行”。（见下图）", s4: "登录", s4d: "安装会自动完成并打开程序。用手机上的方式（Google、Kakao 等）登录即可。",
+  ssh: "Windows 已保护你的电脑", ssp: "Microsoft Defender SmartScreen 阻止了无法识别的应用启动。", ssm: "更多信息", ssr: "仍要运行", ssn: "不运行",
+  wh: "出现这个窗口也没关系", wp: "因为是新发布的程序，Windows 还不认识它，所以会显示这个提示。如果文件是从本页面下载的，点击<b>更多信息</b>，再点<b>仍要运行</b>即可安装。",
+  qS: "常见问题", qH: "你可能想知道", qnone: "没有找到相关内容，换个词试试吧。",
+  qg0: "价格·试用",
+  q1: "要花钱吗？",
+  a1: "手机应用和电脑版都可以免费使用。日程、日历、记账、聊天和小组件都免费。自动打卡、工资自动计算、税务结算、按客户结算和报表、云端自动备份、太阳轨迹 AR 属于高级版功能。",
+  q2: "免费试用是怎样的？",
+  a2: "从第一次登录起30天内，可以体验全部高级功能。试用结束后，已记录的日程和数据都会保留，只是高级功能会被锁定。",
+  q3: "在手机上买了高级版，电脑上也能用吗？",
+  a3: "可以。在手机应用（Google Play）中付款，用同一账号登录的电脑版也会解锁高级版。",
+  qg1: "自动打卡",
+  q4: "自动打卡是怎么工作的？",
+  a4: "在日程里填上工作地点，当天到达该地点附近（约300米内）时自动上班打卡，离开时自动下班打卡，并发送通知。需要把手机定位权限设为<b>始终允许</b>。",
+  q5: "关掉应用也能打卡吗？",
+  a5: "可以。不用打开应用，手机会在后台检测位置，并按到达时间打卡。通知栏里显示“地点自动考勤记录”就说明已开启。",
+  q6: "上班时间记录得晚了。",
+  a6: "为了省电，手机只在明显移动后才报告位置。如果你已经到达地点并静止时才创建日程或修改地点，打开应用时会再检查，可能按那个时间记录。点击日程即可手动修改上班时间。",
+  q7: "通宵工作跨了日期怎么办？",
+  a7: "会接着计算。25日 07:00 上班、26日 08:00 下班，记录为25小时。",
+  q8: "一天有好几个地点呢？",
+  a8: "到达第一个地点时上班打卡，离开最后一个地点时下班打卡。",
+  qg2: "结算·税务",
+  q9: "工资是怎么计算的？",
+  a9: "在日程里填上时薪、日薪等单价，就会按工作时长自动计算。一天超过12小时的部分可以单独算作加班费。",
+  q10: "能算3.3%代扣税或增值税吗？",
+  a10: "可以。自由职业者按扣除代扣税（3.3%）后的金额结算，个体经营者按加上增值税（10%）后的金额结算。",
+  q11: "能一眼看出有没有到账吗？",
+  a11: "日历上方会显示已到账和未到账的合计，还能按客户汇总并分享结算明细。",
+  qg3: "电脑版",
+  q12: "手机和电脑是怎么同步的？",
+  a12: "用同一账号（Kakao 或 Google）登录，日程、账本和聊天都保存在同一台服务器上。一边修改，另一边马上就能看到。",
+  q13: "电脑版的新版本怎么获取？",
+  a13: "程序会自动下载新版本，在你退出或点击通知时安装。不需要重新下载。",
+  q14: "电脑通知被其他通知挡住了。",
+  a14: "在 设置 → 电脑版 → 通知位置 中选择<b>右上角</b>，就不会和“手机连接”等 Windows 通知重叠了。",
+  q15: "安装时弹出“已保护你的电脑”窗口。",
+  a15: "这是新程序才会出现的提示。点击<b>更多信息</b> → <b>仍要运行</b>即可安装。",
+  q16: "能把日历放在电脑桌面上吗？",
+  a16: "可以。在 设置 → 电脑版 中打开桌面日历小组件和任务栏上方的单行日历即可。",
+  qg4: "聊天·其他",
+  q17: "聊天能发什么？",
+  a17: "在好友、群组和日程聊天室里可以发送文字、照片、文件、联系人和日程。照片可以放大查看、保存或分享。",
+  q18: "换手机后记录还在吗？",
+  a18: "用同一账号登录，日程会原样保留。上传到云端备份（设置 → 备份）的内容随时都能恢复。",
+  q19: "iPhone 或 Mac 能用吗？",
+  a19: "目前支持 Android（Google Play）和 Windows 10、11。iPhone 版正在准备中。",
+  fH: "从今天起，一张日历就够了", fP: "在手机上开始，在电脑上看个清楚。", all: "电脑版所有版本"
+};
+var ES = {
+  fGuide: "Guía de uso (en coreano)", fPrivacy: "Política de privacidad (en coreano)", fTerms: "Términos (en coreano)", fMail: "Contacto", brand: "Sparkle Calendar", nav1: "Funciones", nav2: "App para PC", nav3: "Preguntas", navdl: "Descargar",
+  badge: "Un calendario para autónomos y trabajadores de campo",
+  h1: "Tu agenda y tu dinero,<br><span class=\"gold\">en un solo calendario</span>",
+  lead: "Dónde trabajaste, cuánto cobraste y cuánto te deben. Sparkle Calendar lo pone todo en un calendario, y tu móvil y tu PC se sincronizan con la misma cuenta.",
+  gpS: "App para móvil", gp: "Google Play", winS: "App para PC · Gratis", win: "Descargar para Windows",
+  note: "App para móvil gratis · 30 días de Premium gratis",
+  onphone: "Para la app de PC, abre <b>calendar.sparklekorea.com</b> en tu ordenador.",
+  appS: "APP PARA MÓVIL", appH: "Pensada para tu día de trabajo", appP: "Tú apuntas la agenda; Sparkle Calendar hace las cuentas.",
+  m1: "El dinero, en tu calendario", m1d: "Lo que ganas cada día y los totales cobrados y pendientes del mes, sobre el calendario.",
+  m2: "Cálculo automático del pago", m2d: "Pon horas e importe por día y ve lo que te queda tras la retención.",
+  m3: "Fichaje automático", m3d: "Ficha la entrada al llegar a la obra y la salida al irte.",
+  m4: "Chat de equipo", m4d: "Habla con tu equipo y añade a tu calendario las citas compartidas.",
+  m5: "Cuentas y clientes", m5d: "Mira cuánto te debe cada cliente. Los impuestos, más fáciles.",
+  wH: "Widgets de pantalla de inicio", wP: "Ve el mes, la hora y el tiempo sin abrir la app.",
+  pcS: "APP PARA PC", pcH: "Tu calendario del móvil, en la pantalla grande", pcP: "Inicia sesión con la misma cuenta y tu agenda, cuentas y chats te siguen. Cambia algo en el móvil y lo verás en el PC al instante.",
+  r1h: "Todo el mes en una pantalla", r1p: "Ve el mes de un vistazo y crea o mueve citas con el ratón.",
+  r1a: "Doble clic en un día vacío para una nueva cita", r1b: "Arrastra para mover o copiar", r1c: "Ctrl+F para buscar, rueda para cambiar de mes",
+  r2h: "Cuentas y pendientes en tablas grandes", r2p: "Ingresos del año, dinero por cobrar e informes por cliente, ordenados en tu PC.",
+  r2a: "Barras de cobrado / pendiente por mes", r2b: "Lo pendiente desde hace tiempo, en rojo", r2c: "Informes de clientes e impuestos",
+  r3h: "Un calendario siempre en tu escritorio", r3p: "Ve el día de hoy sin abrir el programa, con un widget de escritorio y un calendario de una línea sobre la barra de tareas.",
+  r3a: "Widget de calendario en el escritorio", r3b: "Calendario de una línea sobre la barra de tareas", r3c: "Citas que quedan hoy en el icono de la bandeja",
+  c1: "Chat", c1d: "Escribe cómodo con el teclado y abre los chats en su propia ventana.",
+  c2: "Avisos en el PC", c2d: "Avisos de mensajes nuevos desde la bandeja, aunque cierres la ventana.",
+  c3: "Actualización automática", c3d: "Las nuevas versiones se descargan y se aplican solas.",
+  c4: "7 idiomas", c4d: "Coreano, inglés, japonés, chino, español, portugués y alemán",
+  dl: "Descarga gratis para Windows",
+  iS: "INSTALAR EN PC", iH: "Listo en un minuto",
+  s1: "Descargar", s1d: "Pulsa el botón dorado de descarga.", s2: "Ejecutar", s2d: "Abre el archivo SparkleCalendar-Setup.exe descargado.",
+  s3: "Si sale una ventana azul", s3d: "Pulsa Más información → Ejecutar de todas formas. (ver abajo)", s4: "Iniciar sesión", s4d: "La instalación termina sola y se abre el programa. Inicia sesión igual que en el móvil (Google, Kakao…).",
+  ssh: "Windows protegió su PC", ssp: "Microsoft Defender SmartScreen impidió el inicio de una aplicación no reconocida.", ssm: "Más información", ssr: "Ejecutar de todas formas", ssn: "No ejecutar",
+  wh: "Esta ventana es normal", wp: "Windows la muestra con programas nuevos que aún no conoce. Si descargaste el archivo desde esta página, pulsa <b>Más información</b> y luego <b>Ejecutar de todas formas</b>.",
+  qS: "PREGUNTAS", qH: "Preguntas frecuentes", qnone: "No hay resultados. Prueba con otra palabra.",
+  qg0: "Precio y prueba",
+  q1: "¿Cuesta algo?",
+  a1: "La app para móvil y la de PC son gratis: citas, calendario, cuentas, chat y widgets. El fichaje automático, el cálculo automático del pago, la liquidación de impuestos, los informes por cliente, la copia automática en la nube y la vista AR de la trayectoria del sol son Premium.",
+  q2: "¿Cómo funciona la prueba gratis?",
+  a2: "Tienes todas las funciones Premium durante 30 días desde tu primer inicio de sesión. Al terminar, tus citas y registros se quedan; solo se bloquean las funciones Premium.",
+  q3: "Si compro Premium en el móvil, ¿funciona en el PC?",
+  a3: "Sí. Pagas en la app del móvil (Google Play) y Premium también se activa en la app de PC con la misma cuenta.",
+  qg1: "Fichaje automático",
+  q4: "¿Cómo funciona el fichaje automático?",
+  a4: "Añade un lugar de trabajo a la cita. Ese día, al llegar cerca (unos 300 m) se ficha la entrada y al irte la salida, con un aviso. El permiso de ubicación debe estar en <b>Permitir todo el tiempo</b>.",
+  q5: "¿Funciona con la app cerrada?",
+  a5: "Sí. El móvil revisa la ubicación en segundo plano y guarda la hora a la que llegas. Si ves el aviso \"Registro automático de trabajo por lugar\" en la barra de estado, está activo.",
+  q6: "Mi hora de entrada se registró tarde.",
+  a6: "Para ahorrar batería, el móvil solo informa de la ubicación cuando te mueves bastante. Si ya estabas en el lugar al crear o editar la cita, se comprueba al abrir la app y puede usar esa hora. Toca la cita para corregir la hora.",
+  q7: "¿Y si trabajo pasada la medianoche?",
+  a7: "Sigue contando. Entrada a las 07:00 del día 25 y salida a las 08:00 del 26 se registra como 25 horas.",
+  q8: "¿Y si trabajo en varios lugares el mismo día?",
+  a8: "Se ficha la entrada en el primer lugar y la salida al dejar el último.",
+  qg2: "Pago e impuestos",
+  q9: "¿Cómo se calcula el pago?",
+  a9: "Pon una tarifa por hora o por día en la cita y el pago se calcula con tus horas. Lo que pase de 12 horas al día puede contarse como horas extra.",
+  q10: "¿Calcula la retención del 3,3% o el IVA?",
+  a10: "Sí. Los autónomos ven el importe tras la retención del 3,3%, y las empresas lo ven con el 10% de IVA añadido.",
+  q11: "¿Puedo ver qué está cobrado?",
+  a11: "Los totales cobrados y pendientes aparecen sobre el calendario, y puedes agrupar por cliente y compartir un resumen.",
+  qg3: "App para PC",
+  q12: "¿Cómo se sincronizan el móvil y el PC?",
+  a12: "Inicia sesión con la misma cuenta (Kakao o Google) y las citas, cuentas y chats se guardan en el mismo servidor. Los cambios aparecen enseguida en el otro lado.",
+  q13: "¿Cómo recibo las actualizaciones del PC?",
+  a13: "El programa descarga las nuevas versiones solo y las instala al cerrarlo o al pulsar el aviso. No hace falta volver a descargar.",
+  q14: "Los avisos del PC quedan tapados por otros avisos.",
+  a14: "Ve a Ajustes → App para PC → Posición de avisos y elige <b>Arriba a la derecha</b> para que no se tapen con avisos de Windows como Vínculo móvil.",
+  q15: "Al instalar sale \"Windows protegió su PC\".",
+  a15: "Aparece porque el programa es nuevo. Pulsa <b>Más información</b> → <b>Ejecutar de todas formas</b>.",
+  q16: "¿Puedo tener un calendario en el escritorio?",
+  a16: "Sí. Activa el widget de calendario de escritorio y el calendario de una línea sobre la barra de tareas en Ajustes → App para PC.",
+  qg4: "Chat y más",
+  q17: "¿Qué puedo enviar por chat?",
+  a17: "En chats de amigos, grupos y citas puedes enviar texto, fotos, archivos, contactos y citas. Las fotos se abren a pantalla completa para guardarlas o compartirlas.",
+  q18: "¿Qué pasa si cambio de móvil?",
+  a18: "Inicia sesión con la misma cuenta y tus citas siguen ahí. Lo que tengas en la copia en la nube (Ajustes → Copia de seguridad) se puede restaurar cuando quieras.",
+  q19: "¿Funciona en iPhone o Mac?",
+  a19: "Por ahora es compatible con Android (Google Play) y Windows 10 y 11. La versión para iPhone está en camino.",
+  fH: "Un solo calendario, desde hoy", fP: "Empieza en el móvil y míralo en grande en el PC.", all: "Todas las versiones para PC"
+};
+var PT = {
+  fGuide: "Guia de uso (em coreano)", fPrivacy: "Política de privacidade (em coreano)", fTerms: "Termos de uso (em coreano)", fMail: "Contato", brand: "Sparkle Calendar", nav1: "Recursos", nav2: "App para PC", nav3: "Perguntas", navdl: "Baixar",
+  badge: "Um calendário para autônomos e quem trabalha em campo",
+  h1: "Sua agenda e seu dinheiro,<br><span class=\"gold\">em um só calendário</span>",
+  lead: "Onde você trabalhou, quanto recebeu e quanto ainda falta receber. O Sparkle Calendar coloca tudo em um calendário, e o celular e o PC ficam sincronizados na mesma conta.",
+  gpS: "App para celular", gp: "Google Play", winS: "App para PC · Grátis", win: "Baixar para Windows",
+  note: "App para celular grátis · 30 dias de Premium grátis",
+  onphone: "Para o app de PC, abra <b>calendar.sparklekorea.com</b> no computador.",
+  appS: "APP PARA CELULAR", appH: "Feito para o seu dia de trabalho", appP: "Você anota a agenda; o Sparkle Calendar faz as contas.",
+  m1: "Dinheiro no calendário", m1d: "Ganhos do dia e totais recebidos e pendentes do mês, direto no calendário.",
+  m2: "Cálculo automático do pagamento", m2d: "Informe horas e valor por dia e veja quanto sobra depois da retenção.",
+  m3: "Ponto automático", m3d: "Registra a entrada quando você chega ao local e a saída quando vai embora.",
+  m4: "Chat da equipe", m4d: "Converse com a equipe e adicione agendas compartilhadas ao seu calendário.",
+  m5: "Finanças e clientes", m5d: "Veja quanto cada cliente ainda deve. Fica mais fácil na hora dos impostos.",
+  wH: "Widgets na tela inicial", wP: "Veja o mês, a hora e o clima sem abrir o app.",
+  pcS: "APP PARA PC", pcH: "O calendário do celular, na tela grande", pcP: "Entre com a mesma conta e sua agenda, finanças e chats vêm junto. Mudou no celular, aparece no PC na hora.",
+  r1h: "O mês inteiro em uma tela", r1p: "Veja o mês de relance e crie ou mova compromissos com o mouse.",
+  r1a: "Clique duas vezes num dia vazio para um novo compromisso", r1b: "Arraste para mover ou copiar", r1c: "Ctrl+F para buscar, roda do mouse para trocar de mês",
+  r2h: "Finanças e pendências em tabelas grandes", r2p: "Renda do ano, valores a receber e relatórios por cliente, organizados no PC.",
+  r2a: "Barras de recebido / pendente por mês", r2b: "Pendências antigas em vermelho", r2c: "Relatórios de clientes e impostos",
+  r3h: "Um calendário sempre na área de trabalho", r3p: "Veja o dia sem abrir o programa, com um widget na área de trabalho e um calendário de uma linha acima da barra de tarefas.",
+  r3a: "Widget de calendário na área de trabalho", r3b: "Calendário de uma linha acima da barra de tarefas", r3c: "Compromissos restantes de hoje no ícone da bandeja",
+  c1: "Chat", c1d: "Digite com conforto e abra as conversas em janelas próprias.",
+  c2: "Alertas no PC", c2d: "Alertas de novas mensagens pela bandeja, mesmo com a janela fechada.",
+  c3: "Atualização automática", c3d: "Novas versões são baixadas e aplicadas sozinhas.",
+  c4: "7 idiomas", c4d: "Coreano, inglês, japonês, chinês, espanhol, português e alemão",
+  dl: "Download grátis para Windows",
+  iS: "INSTALAR NO PC", iH: "Pronto em um minuto",
+  s1: "Baixar", s1d: "Clique no botão dourado de download.", s2: "Executar", s2d: "Abra o arquivo SparkleCalendar-Setup.exe baixado.",
+  s3: "Se aparecer uma janela azul", s3d: "Clique em Mais informações → Executar assim mesmo. (veja abaixo)", s4: "Entrar", s4d: "A instalação termina sozinha e o programa abre. Entre do mesmo jeito que no celular (Google, Kakao…).",
+  ssh: "O Windows protegeu o computador", ssp: "O Microsoft Defender SmartScreen impediu a inicialização de um aplicativo não reconhecido.", ssm: "Mais informações", ssr: "Executar assim mesmo", ssn: "Não executar",
+  wh: "Essa janela é normal", wp: "O Windows mostra isso para programas novos que ele ainda não conhece. Se você baixou o arquivo nesta página, clique em <b>Mais informações</b> e depois em <b>Executar assim mesmo</b>.",
+  qS: "PERGUNTAS", qH: "Perguntas frequentes", qnone: "Nada encontrado. Tente outra palavra.",
+  qg0: "Preço e teste",
+  q1: "É pago?",
+  a1: "O app para celular e o app para PC são grátis: compromissos, calendário, finanças, chat e widgets. Ponto automático, cálculo automático do pagamento, acerto de impostos, relatórios por cliente, backup automático na nuvem e a visão AR do caminho do sol são Premium.",
+  q2: "Como funciona o teste grátis?",
+  a2: "Você tem todos os recursos Premium por 30 dias a partir do primeiro login. Quando acaba, seus compromissos e registros continuam; só os recursos Premium ficam bloqueados.",
+  q3: "O Premium comprado no celular funciona no PC?",
+  a3: "Sim. Você paga no app do celular (Google Play) e o Premium também é liberado no app de PC com a mesma conta.",
+  qg1: "Ponto automático",
+  q4: "Como funciona o ponto automático?",
+  a4: "Adicione um local de trabalho ao compromisso. Nesse dia, ao chegar perto do local (cerca de 300 m) a entrada é registrada e, ao sair, a saída, com um alerta. A permissão de localização precisa estar em <b>Permitir o tempo todo</b>.",
+  q5: "Funciona com o app fechado?",
+  a5: "Sim. O celular verifica a localização em segundo plano e registra a hora em que você chega. Se aparecer o aviso \"Registro automático de trabalho por local\" na barra de status, está ativo.",
+  q6: "Minha entrada foi registrada atrasada.",
+  a6: "Para economizar bateria, o celular só informa a localização depois de você se mover um bom pedaço. Se você já estava no local ao criar ou editar o compromisso, isso é verificado ao abrir o app e pode usar esse horário. Toque no compromisso para corrigir a hora.",
+  q7: "E se eu trabalhar depois da meia-noite?",
+  a7: "A contagem continua. Entrada às 07:00 do dia 25 e saída às 08:00 do dia 26 é registrada como 25 horas.",
+  q8: "E se eu trabalhar em vários locais no mesmo dia?",
+  a8: "A entrada é registrada no primeiro local e a saída quando você deixa o último.",
+  qg2: "Pagamento e impostos",
+  q9: "Como o pagamento é calculado?",
+  a9: "Informe um valor por hora ou por dia no compromisso e o pagamento é calculado pelas suas horas. O que passar de 12 horas por dia pode contar como hora extra.",
+  q10: "Calcula a retenção de 3,3% ou o imposto sobre valor agregado?",
+  a10: "Sim. Autônomos veem o valor depois da retenção de 3,3%, e empresas veem com 10% de imposto sobre valor agregado somado.",
+  q11: "Dá para ver o que já foi pago?",
+  a11: "Os totais recebidos e pendentes aparecem acima do calendário, e você pode agrupar por cliente e compartilhar um extrato.",
+  qg3: "App para PC",
+  q12: "Como o celular e o PC ficam sincronizados?",
+  a12: "Entre com a mesma conta (Kakao ou Google) e compromissos, finanças e chats ficam salvos no mesmo servidor. O que muda de um lado aparece no outro na hora.",
+  q13: "Como recebo as atualizações do PC?",
+  a13: "O programa baixa as novas versões sozinho e instala quando você fecha ou toca no alerta. Não precisa baixar de novo.",
+  q14: "Os alertas do PC ficam escondidos atrás de outros alertas.",
+  a14: "Vá em Configurações → App para PC → Posição dos alertas e escolha <b>Canto superior direito</b> para não ficarem atrás de alertas do Windows, como o Vincular ao Celular.",
+  q15: "Ao instalar aparece \"O Windows protegeu o computador\".",
+  a15: "Aparece porque o programa é novo. Clique em <b>Mais informações</b> → <b>Executar assim mesmo</b>.",
+  q16: "Posso ter um calendário na área de trabalho?",
+  a16: "Sim. Ative o widget de calendário na área de trabalho e o calendário de uma linha acima da barra de tarefas em Configurações → App para PC.",
+  qg4: "Chat e mais",
+  q17: "O que posso enviar no chat?",
+  a17: "Em conversas de amigos, grupos e compromissos você envia textos, fotos, arquivos, contatos e compromissos. As fotos abrem em tela cheia para salvar ou compartilhar.",
+  q18: "E se eu trocar de celular?",
+  a18: "Entre com a mesma conta e seus compromissos continuam lá. O que estiver no backup na nuvem (Configurações → Backup) pode ser restaurado quando quiser.",
+  q19: "Funciona no iPhone ou no Mac?",
+  a19: "Por enquanto, funciona no Android (Google Play) e no Windows 10 e 11. A versão para iPhone está a caminho.",
+  fH: "Um só calendário, a partir de hoje", fP: "Comece no celular e veja em tela grande no PC.", all: "Todas as versões para PC"
+};
+var DE = {
+  fGuide: "Anleitung (Koreanisch)", fPrivacy: "Datenschutz (Koreanisch)", fTerms: "Nutzungsbedingungen (Koreanisch)", fMail: "Kontakt", brand: "Sparkle Calendar", nav1: "Funktionen", nav2: "PC-Programm", nav3: "FAQ", navdl: "Download",
+  badge: "Ein Kalender für Freiberufler und Leute im Außendienst",
+  h1: "Termine und Geld<br><span class=\"gold\">in einem Kalender</span>",
+  lead: "Wo du gearbeitet hast, was du bekommen hast und was noch offen ist. Sparkle Calendar bringt alles auf einen Kalender, und Handy und PC bleiben mit demselben Konto synchron.",
+  gpS: "Handy-App", gp: "Google Play", winS: "PC-Programm · Kostenlos", win: "Für Windows herunterladen",
+  note: "Handy-App kostenlos · Premium 30 Tage gratis testen",
+  onphone: "Für das PC-Programm öffne <b>calendar.sparklekorea.com</b> auf deinem PC.",
+  appS: "HANDY-APP", appH: "Gemacht für deinen Arbeitstag", appP: "Du trägst die Termine ein, Sparkle Calendar rechnet.",
+  m1: "Geld im Kalender sehen", m1d: "Tagesverdienst und die bezahlten / offenen Summen des Monats direkt im Kalender.",
+  m2: "Lohn automatisch berechnet", m2d: "Stunden und Betrag pro Tag eintragen und den Nettobetrag nach Abzug sehen.",
+  m3: "Automatische Zeiterfassung", m3d: "Stempelt dich ein, wenn du am Einsatzort ankommst, und aus, wenn du gehst.",
+  m4: "Team-Chat", m4d: "Schreib mit deinem Team und übernimm geteilte Termine in deinen Kalender.",
+  m5: "Haushaltsbuch & Kunden", m5d: "Sieh, was jeder Kunde noch schuldet. Die Steuer wird leichter.",
+  wH: "Widgets für den Startbildschirm", wP: "Monat, Uhrzeit und Wetter sehen, ohne die App zu öffnen.",
+  pcS: "PC-PROGRAMM", pcH: "Dein Handy-Kalender auf dem großen Bildschirm", pcP: "Mit demselben Konto anmelden, und Termine, Haushaltsbuch und Chats sind sofort da. Am Handy ändern, am PC sofort sehen.",
+  r1h: "Ein ganzer Monat auf einen Blick", r1p: "Den Monat überblicken und Termine direkt mit der Maus anlegen oder verschieben.",
+  r1a: "Doppelklick auf einen leeren Tag für einen neuen Termin", r1b: "Ziehen zum Verschieben oder Kopieren", r1c: "Strg+F zum Suchen, Mausrad zum Blättern",
+  r2h: "Haushaltsbuch und Offenes in großen Tabellen", r2p: "Jahreseinkommen, offene Beträge und Kundenberichte, übersichtlich am PC.",
+  r2a: "Balken für bezahlt / offen pro Monat", r2b: "Lange Offenes in Rot", r2c: "Kunden- und Steuerberichte",
+  r3h: "Ein Kalender, der auf dem Desktop bleibt", r3p: "Den heutigen Tag sehen, ohne das Programm zu öffnen: mit Desktop-Widget und einzeiligem Kalender über der Taskleiste.",
+  r3a: "Kalender-Widget für den Desktop", r3b: "Einzeiliger Kalender über der Taskleiste", r3c: "Heute noch offene Termine am Tray-Symbol",
+  c1: "Chat", c1d: "Bequem mit der Tastatur schreiben, Chats in eigenen Fenstern.",
+  c2: "PC-Benachrichtigungen", c2d: "Neue Nachrichten über das Tray, auch bei geschlossenem Fenster.",
+  c3: "Automatische Updates", c3d: "Neue Versionen werden von selbst geladen und installiert.",
+  c4: "7 Sprachen", c4d: "Koreanisch, Englisch, Japanisch, Chinesisch, Spanisch, Portugiesisch, Deutsch",
+  dl: "Kostenlos für Windows herunterladen",
+  iS: "AUF DEM PC INSTALLIEREN", iH: "In einer Minute fertig",
+  s1: "Herunterladen", s1d: "Klick auf den goldenen Download-Button.", s2: "Ausführen", s2d: "Öffne die heruntergeladene SparkleCalendar-Setup.exe.",
+  s3: "Wenn ein blaues Fenster kommt", s3d: "Klick auf Weitere Informationen → Trotzdem ausführen. (siehe unten)", s4: "Anmelden", s4d: "Die Installation läuft von selbst durch und das Programm startet. Melde dich wie am Handy an (Google, Kakao …).",
+  ssh: "Der Computer wurde durch Windows geschützt", ssp: "Von Microsoft Defender SmartScreen wurde der Start einer unbekannten App verhindert.", ssm: "Weitere Informationen", ssr: "Trotzdem ausführen", ssn: "Nicht ausführen",
+  wh: "Dieses Fenster ist normal", wp: "Windows zeigt es bei neuen Programmen, die es noch nicht kennt. Wenn du die Datei von dieser Seite hast, klick auf <b>Weitere Informationen</b> und dann auf <b>Trotzdem ausführen</b>.",
+  qS: "FAQ", qH: "Häufige Fragen", qnone: "Nichts gefunden. Versuch ein anderes Wort.",
+  qg0: "Preis & Test",
+  q1: "Kostet das etwas?",
+  a1: "Handy-App und PC-Programm sind kostenlos: Termine, Kalender, Haushaltsbuch, Chat und Widgets. Automatische Zeiterfassung, automatische Lohnberechnung, Steuerabrechnung, Kundenberichte, automatisches Cloud-Backup und die AR-Ansicht des Sonnenverlaufs sind Premium.",
+  q2: "Wie funktioniert der Gratis-Test?",
+  a2: "Ab deiner ersten Anmeldung kannst du 30 Tage lang alle Premium-Funktionen nutzen. Danach bleiben deine Termine und Daten erhalten; nur die Premium-Funktionen werden gesperrt.",
+  q3: "Gilt Premium vom Handy auch am PC?",
+  a3: "Ja. Du bezahlst in der Handy-App (Google Play), und Premium wird auch im PC-Programm mit demselben Konto freigeschaltet.",
+  qg1: "Automatische Zeiterfassung",
+  q4: "Wie funktioniert die automatische Zeiterfassung?",
+  a4: "Trag beim Termin einen Arbeitsort ein. An dem Tag wirst du eingestempelt, wenn du in die Nähe kommst (ca. 300 m), und ausgestempelt, wenn du gehst, mit Benachrichtigung. Die Standortberechtigung muss auf <b>Immer zulassen</b> stehen.",
+  q5: "Klappt das auch bei geschlossener App?",
+  a5: "Ja. Dein Handy prüft den Standort im Hintergrund und speichert die Ankunftszeit. Steht in der Statusleiste „Automatische Arbeitszeit nach Ort“, ist es aktiv.",
+  q6: "Meine Ankunftszeit wurde zu spät erfasst.",
+  a6: "Um Akku zu sparen, meldet das Handy den Standort erst nach einer größeren Bewegung. Warst du schon vor Ort, als du den Termin angelegt oder geändert hast, wird das beim Öffnen der App geprüft und ggf. diese Zeit genommen. Tipp auf den Termin, um die Zeit zu korrigieren.",
+  q7: "Und wenn ich über Mitternacht arbeite?",
+  a7: "Es wird weitergezählt. Beginn am 25. um 07:00 und Ende am 26. um 08:00 ergibt 25 Stunden.",
+  q8: "Und bei mehreren Orten an einem Tag?",
+  a8: "Eingestempelt wird am ersten Ort, ausgestempelt, wenn du den letzten verlässt.",
+  qg2: "Lohn & Steuer",
+  q9: "Wie wird der Lohn berechnet?",
+  a9: "Trag beim Termin einen Stunden- oder Tagessatz ein, und der Lohn wird aus deinen Stunden berechnet. Zeit über 12 Stunden am Tag kann als Überstunden zählen.",
+  q10: "Werden 3,3 % Quellensteuer oder Mehrwertsteuer berechnet?",
+  a10: "Ja. Freiberufler sehen den Betrag nach 3,3 % Quellensteuer, Unternehmen den Betrag mit 10 % Mehrwertsteuer.",
+  q11: "Sehe ich auf einen Blick, was bezahlt ist?",
+  a11: "Bezahlte und offene Summen stehen über dem Kalender, und du kannst nach Kunden gruppieren und eine Abrechnung teilen.",
+  qg3: "PC-Programm",
+  q12: "Wie bleiben Handy und PC synchron?",
+  a12: "Melde dich mit demselben Konto an (Kakao oder Google), dann werden Termine, Haushaltsbuch und Chats auf demselben Server gespeichert. Änderungen erscheinen sofort auf der anderen Seite.",
+  q13: "Wie bekomme ich PC-Updates?",
+  a13: "Das Programm lädt neue Versionen selbst und installiert sie, wenn du es beendest oder auf die Benachrichtigung tippst. Kein erneuter Download nötig.",
+  q14: "PC-Benachrichtigungen werden von anderen verdeckt.",
+  a14: "Geh zu Einstellungen → PC-Programm → Position der Benachrichtigungen und wähle <b>Oben rechts</b>, damit Windows-Meldungen wie Smartphone-Link sie nicht überdecken.",
+  q15: "Beim Installieren erscheint „Der Computer wurde durch Windows geschützt“.",
+  a15: "Das kommt, weil das Programm neu ist. Klick auf <b>Weitere Informationen</b> → <b>Trotzdem ausführen</b>.",
+  q16: "Kann ich einen Kalender auf den Desktop legen?",
+  a16: "Ja. Schalte unter Einstellungen → PC-Programm das Desktop-Kalender-Widget und den einzeiligen Kalender über der Taskleiste ein.",
+  qg4: "Chat & mehr",
+  q17: "Was kann ich im Chat senden?",
+  a17: "In Freundes-, Gruppen- und Termin-Chats kannst du Text, Fotos, Dateien, Kontakte und Termine senden. Fotos öffnen sich groß zum Speichern oder Teilen.",
+  q18: "Was passiert, wenn ich das Handy wechsle?",
+  a18: "Mit demselben Konto anmelden, und deine Termine sind wieder da. Was im Cloud-Backup liegt (Einstellungen → Backup), kannst du jederzeit wiederherstellen.",
+  q19: "Läuft es auf iPhone oder Mac?",
+  a19: "Im Moment werden Android (Google Play) und Windows 10 und 11 unterstützt. Eine iPhone-Version ist in Arbeit.",
+  fH: "Ab heute ein Kalender für alles", fP: "Am Handy starten, am PC groß sehen.", all: "Alle PC-Versionen"
+};
 var KO = {};
 document.querySelectorAll('[data-t]').forEach(function (e) { var k = e.getAttribute('data-t'); if (!(k in KO)) KO[k] = e.innerHTML; });
-var lang = (navigator.language || 'ko').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en';
-try { lang = localStorage.getItem('lang') || lang; } catch (e) {}
+var DICTS = { ko: KO, en: EN, ja: JA, zh: ZH, es: ES, pt: PT, de: DE };
+var TITLES = { ko: '스파클달력' };
+var QPH = {
+  ko: '궁금한 점을 검색해 보세요 (예: 출근, 세금, 알림)',
+  en: 'Search questions (e.g. clock-in, tax, alerts)',
+  ja: '質問を検索（例：出勤、税金、通知）',
+  zh: '搜索问题（例如：打卡、税务、通知）',
+  es: 'Busca una pregunta (p. ej.: fichaje, impuestos, avisos)',
+  pt: 'Busque uma pergunta (ex.: ponto, impostos, alertas)',
+  de: 'Fragen durchsuchen (z. B. Zeiterfassung, Steuer, Benachrichtigung)'
+};
+// 버전 줄의 낱말: [버전, 64비트]
+var META = {
+  ko: ['버전 ', '64비트'], en: ['Version ', '64-bit'], ja: ['バージョン ', '64ビット'], zh: ['版本 ', '64位'],
+  es: ['Versión ', '64 bits'], pt: ['Versão ', '64 bits'], de: ['Version ', '64-Bit']
+};
+var lang = skDetect();
 var rel = null;
 function showMeta() {
   var m = document.getElementById('meta');
-  var base = 'Windows 10 · 11 (64' + (lang === 'en' ? '-bit)' : '비트)');
+  var w = META[lang] || META.en;
+  var base = 'Windows 10 · 11 (' + w[1] + ')';
   if (!rel) { m.textContent = base; return; }
   var a = (rel.assets || []).filter(function (x) { return /\.exe$/i.test(x.name); })[0];
-  m.textContent = (lang === 'en' ? 'Version ' : '버전 ') + String(rel.tag_name || '').replace(/^v/, '') + (a ? ' · ' + Math.round(a.size / 1048576) + 'MB' : '') + ' · ' + base;
+  m.textContent = w[0] + String(rel.tag_name || '').replace(/^v/, '') + (a ? ' · ' + Math.round(a.size / 1048576) + 'MB' : '') + ' · ' + base;
 }
 function apply() {
-  var d = lang === 'en' ? EN : KO;
+  var d = DICTS[lang] || EN;
   document.documentElement.lang = lang;
-  document.title = lang === 'en' ? 'Sparkle Calendar' : '스파클달력';
+  document.title = TITLES[lang] || 'Sparkle Calendar';
   document.querySelectorAll('[data-t]').forEach(function (e) { var k = e.getAttribute('data-t'); if (d[k] != null) e.innerHTML = d[k]; });
-  document.getElementById('lang').textContent = lang === 'en' ? '한국어' : 'English';
-  if (window.qfind) { qfind.placeholder = lang === 'en' ? 'Search questions (e.g. clock-in, tax, alerts)' : '궁금한 점을 검색해 보세요 (예: 출근, 세금, 알림)'; if (qfind.value) qFilter(); }
+  if (window.qfind) { qfind.placeholder = QPH[lang] || QPH.en; if (qfind.value) qFilter(); }
   showMeta();
+  skLinks(lang);
 }
-document.getElementById('lang').onclick = function () {
-  lang = lang === 'en' ? 'ko' : 'en';
-  try { localStorage.setItem('lang', lang); } catch (e) {}
-  apply();
-};
+skPicker(document.getElementById('lang'), lang, function (l) { lang = l; apply(); });
 // 자주 묻는 질문 검색: 질문·답에 낱말이 모두 들어 있는 것만 보여 주고 펼쳐 둡니다.
 var qfind = document.getElementById('qfind');
 function qFilter() {
